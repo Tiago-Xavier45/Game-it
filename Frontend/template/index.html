@@ -30,9 +30,10 @@
 
 <!-- Nav Pills -->
 <div class="nav-pills">
-    <span class="nav-pill active">Home</span>
+    <a href="/perfil" class="nav-pill" style="text-decoration:none;">Home</a>
     <span class="nav-pill">Review</span>
-    <span class="nav-pill">Perfil</span>
+    <a href="/perfil" class="nav-pill" style="text-decoration:none;">Perfil</a>
+    <a href="/progresso" class="nav-pill active" style="text-decoration:none;">Biblioteca</a>
     <a href="/configuracoes" class="nav-pill" style="text-decoration:none;">
         Configurações
     </a>
@@ -40,19 +41,6 @@
 
 <!-- Actions -->
 <div class="nav-actions">
-    <!-- Sync -->
-    <button id="btn-sync-dash" onclick="syncJogos()"
-            title="Sincronizar jogos com a Steam"
-            style="display:flex;align-items:center;gap:6px;
-                   background:rgba(99,102,241,.1);
-                   border:1px solid rgba(99,102,241,.25);
-                   border-radius:10px;padding:7px 13px;
-                   color:#6366F1;font-size:13px;font-weight:700;
-                   cursor:pointer;transition:all .2s;">
-        <i class="fa-solid fa-rotate" id="sync-dash-icon"></i>
-        Sync
-    </button>
-
     <button class="btn-search" onclick="document.getElementById('search-bar').focus()">
         <i class="fa-solid fa-magnifying-glass"></i> Pesquisar
     </button>
@@ -71,6 +59,7 @@
         <i class="fa-solid fa-arrow-right-from-bracket"></i>
     </button>
 </div>
+</nav>
 
 <!-- ══════════════════════════════════════════════════
      LAYOUT
@@ -120,6 +109,15 @@
             <p class="game-counter">
                 <span id="game-count" class="counter-num">0</span> jogos
             </p>
+
+            <div class="sync-area">
+                <span id="last-sync-label" class="last-sync-label"></span>
+                <button id="btn-sync-dash" onclick="syncJogos()"
+                        class="btn-sync" title="Sincronizar jogos com a Steam">
+                    <i class="fa-solid fa-rotate" id="sync-dash-icon"></i>
+                    <span>Sincronizar</span>
+                </button>
+            </div>
         </div>
 
         <div class="grid-area cscroll">

@@ -71,10 +71,6 @@ def init_db():
 
     cur.execute("CREATE INDEX IF NOT EXISTS idx_notes_appid ON notes(appid);")
 
-    conn.commit()
-    cur.close()
-    conn.close()
-    print("[DB] ✅ Tabelas inicializadas com sucesso.")
     cur.execute("""
         CREATE TABLE IF NOT EXISTS user_games (
             id               SERIAL        PRIMARY KEY,
@@ -88,3 +84,35 @@ def init_db():
         );
     """)
     cur.execute("CREATE INDEX IF NOT EXISTS idx_ugames_user ON user_games(user_id);")
+
+    # Colunas extras p/ cache de progresso (adiciona se não existirem)
+    cur.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                           WHERE table_name='user_games' AND column_name='status') THEN
+                ALTER TABLE user_games ADD COLUMN status VARCHAR(50) DEFAULT 'Sem Conquistas';
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                           WHERE table_name='user_games' AND column_name='pct') THEN
+                ALTER TABLE user_games ADD COLUMN pct REAL DEFAULT 0;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                           WHERE table_name='user_games' AND column_name='achievements') THEN
+                ALTER TABLE user_games ADD COLUMN achievements JSONB DEFAULT '[]'::jsonb;
+            END IF;
+        END$$;
+    """)
+
+    # Controle de última sincronização por usuário
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS sync_status (
+            user_id     INTEGER   PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+            last_synced TIMESTAMP DEFAULT NOW()
+        );
+    """)
+
+    conn.commit()
+    cur.close()
+    conn.close()
+    print("[DB] ✅ Tabelas inicializadas com sucesso.")

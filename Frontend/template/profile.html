@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game It | Perfil</title>
+    <link rel="icon" type="image/svg+xml" href="/static/img/Game It Logo.svg">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="profile-body">
+
+<!-- ══════════════════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════════════════ -->
+<nav class="g-nav" id="top-nav">
+    <div class="nav-logo">
+        <img src="/static/img/Game It Logo.svg" width="32" height="32" alt="Game It Logo">
+        <span class="nav-title">Game <span style="color:#6366F1">It</span></span>
+    </div>
+
+    <div class="nav-pills">
+        <a href="/perfil" class="nav-pill" style="text-decoration:none;">Home</a>
+        <span class="nav-pill">Review</span>
+        <a href="/perfil" class="nav-pill active" style="text-decoration:none;">Perfil</a>
+        <a href="/progresso" class="nav-pill" style="text-decoration:none;">Biblioteca</a>
+        <a href="/configuracoes" class="nav-pill" style="text-decoration:none;">Configurações</a>
+    </div>
+
+    <div class="nav-actions">
+        <button class="btn-search" onclick="document.getElementById('feed-search').focus()">
+            <i class="fa-solid fa-magnifying-glass"></i> Pesquisar
+        </button>
+        <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()" title="Alternar tema">
+            <i class="fa-solid fa-sun"></i>
+        </button>
+        <button onclick="fazerLogout()" title="Sair"
+                style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);
+                       border-radius:10px;padding:7px 13px;color:#f87171;font-size:13px;
+                       font-weight:700;cursor:pointer;transition:all .2s;">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </button>
+    </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════
+     LAYOUT
+══════════════════════════════════════════════════ -->
+<div class="profile-layout cscroll">
+
+    <!-- ░░░░░ LEFT COLUMN ░░░░░ -->
+    <aside class="pcol-left">
+
+        <!-- Jogado Recentemente -->
+        <section class="panel pcard">
+            <h3 class="pcard-title">Jogado Recentemente</h3>
+            <div id="recent-played" class="recent-list">
+                <div class="recent-loading">
+                    <div class="spinner-sm"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Avaliações -->
+        <section class="panel pcard">
+            <h3 class="pcard-title">Avaliações</h3>
+            <div class="rating-bars">
+                <div class="rating-row"><span class="rating-num">5</span><div class="rating-track"><div class="rating-fill" style="width:92%"></div></div></div>
+                <div class="rating-row"><span class="rating-num">4</span><div class="rating-track"><div class="rating-fill" style="width:74%"></div></div></div>
+                <div class="rating-row"><span class="rating-num">3</span><div class="rating-track"><div class="rating-fill" style="width:60%"></div></div></div>
+                <div class="rating-row"><span class="rating-num">2</span><div class="rating-track"><div class="rating-fill" style="width:48%"></div></div></div>
+                <div class="rating-row"><span class="rating-num">1</span><div class="rating-track"><div class="rating-fill" style="width:30%"></div></div></div>
+            </div>
+        </section>
+
+        <!-- Plataformas mais usadas -->
+        <section class="panel pcard">
+            <h3 class="pcard-title">Plataformas mais usadas</h3>
+            <div class="platform-bars">
+                <div class="platform-row">
+                    <span class="platform-ico"><i class="fa-brands fa-playstation"></i></span>
+                    <div class="rating-track"><div class="rating-fill" style="width:90%"></div></div>
+                </div>
+                <div class="platform-row">
+                    <span class="platform-ico"><i class="fa-brands fa-xbox"></i></span>
+                    <div class="rating-track"><div class="rating-fill" style="width:68%"></div></div>
+                </div>
+                <div class="platform-row">
+                    <span class="platform-ico"><i class="fa-brands fa-steam"></i></span>
+                    <div class="rating-track"><div class="rating-fill" style="width:58%"></div></div>
+                </div>
+                <div class="platform-row">
+                    <span class="platform-ico"><i class="fa-solid fa-gamepad"></i></span>
+                    <div class="rating-track"><div class="rating-fill" style="width:44%"></div></div>
+                </div>
+            </div>
+        </section>
+    </aside>
+
+    <!-- ░░░░░ CENTER COLUMN ░░░░░ -->
+    <main class="pcol-center">
+
+        <!-- Profile Header -->
+        <section class="panel profile-header">
+            <div class="profile-banner"></div>
+
+            <div class="fav-games">
+                <p class="fav-title">Jogos Favoritos</p>
+                <div class="fav-covers">
+                    <div class="fav-cover"><img src="https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/library_600x900.jpg" alt="Cyberpunk 2077" onerror="this.style.display='none'"></div>
+                    <div class="fav-cover"><img src="https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/library_600x900.jpg" alt="Red Dead Redemption 2" onerror="this.style.display='none'"></div>
+                    <div class="fav-cover"><img src="https://cdn.cloudflare.steamstatic.com/steam/apps/374320/library_600x900.jpg" alt="Dark Souls III" onerror="this.style.display='none'"></div>
+                </div>
+            </div>
+
+            <button class="btn-edit-profile">Editar Perfil</button>
+
+            <div class="profile-avatar">
+                <img id="profile-avatar-img" src="/static/img/Game It Logo.svg" alt="Avatar">
+            </div>
+
+            <div class="profile-info">
+                <h2 class="profile-name">
+                    <span id="profile-nickname">@Nickname</span>
+                    <i class="fa-solid fa-circle-check verified"></i>
+                </h2>
+                <p class="profile-bio">Eu sou uma bio!</p>
+                <p class="profile-meta">
+                    <i class="fa-regular fa-calendar"></i> Entrou em Agosto de 2019
+                </p>
+                <p class="profile-follow">
+                    <span class="follow-num">100</span> <span class="follow-lbl">Seguindo</span>
+                    <span class="follow-num">100</span> <span class="follow-lbl">Seguidores</span>
+                </p>
+            </div>
+        </section>
+
+        <!-- Tabs -->
+        <div class="profile-tabs">
+            <button class="ptab active" data-tab="posts" onclick="switchProfileTab('posts')">Posts</button>
+            <button class="ptab" data-tab="reviews" onclick="switchProfileTab('reviews')">Reviews</button>
+            <button class="ptab" data-tab="listas" onclick="switchProfileTab('listas')">Listas</button>
+            <button class="ptab" data-tab="jogos" onclick="switchProfileTab('jogos')">Jogos</button>
+            <button class="ptab" data-tab="curtidas" onclick="switchProfileTab('curtidas')">Curtidas</button>
+        </div>
+
+        <!-- Hidden search input target -->
+        <input id="feed-search" type="text" style="position:absolute;opacity:0;pointer-events:none;height:0;width:0;">
+
+        <!-- Posts panel -->
+        <div id="ppanel-posts" class="ppanel">
+            <article class="post panel">
+                <button class="post-menu"><i class="fa-solid fa-ellipsis"></i></button>
+                <div class="post-head">
+                    <div class="post-avatar"><img src="/static/img/Game It Logo.svg" alt=""></div>
+                    <div class="post-author">
+                        <span class="post-name">@Nickname</span>
+                        <i class="fa-solid fa-circle-check verified sm"></i>
+                        <span class="post-time">· 5h</span>
+                    </div>
+                </div>
+                <p class="post-text">Não aguento mais, quero jogar GTA VI :(</p>
+                <div class="post-actions">
+                    <button class="pact like"><i class="fa-regular fa-heart"></i> <span>5M</span></button>
+                    <button class="pact comment"><i class="fa-regular fa-comment"></i> <span>1M</span></button>
+                    <button class="pact share"><i class="fa-solid fa-retweet"></i> <span>2M</span></button>
+                    <button class="pact send"><i class="fa-solid fa-arrow-up-from-bracket"></i></button>
+                </div>
+            </article>
+
+            <article class="post panel">
+                <button class="post-menu"><i class="fa-solid fa-ellipsis"></i></button>
+                <div class="post-head">
+                    <div class="post-avatar"><img src="/static/img/Game It Logo.svg" alt=""></div>
+                    <div class="post-author">
+                        <span class="post-name">@Nickname</span>
+                        <i class="fa-solid fa-circle-check verified sm"></i>
+                        <span class="post-time">· 22 Dez, 2024</span>
+                    </div>
+                </div>
+                <p class="post-text">Prepare-se para uma nova era em Los Santos! A DLC Los Santos Crimewave chegou para elevar o caos a outro nível. Novas missões, carros, armas e mais. Não perca a oportunidade de dominar as ruas e expandir seus impérios. #LosSantosCrimewave #RockstarGames</p>
+                <div class="post-actions">
+                    <button class="pact like"><i class="fa-regular fa-heart"></i> <span>5M</span></button>
+                    <button class="pact comment"><i class="fa-regular fa-comment"></i> <span>1M</span></button>
+                    <button class="pact share"><i class="fa-solid fa-retweet"></i> <span>2M</span></button>
+                    <button class="pact send"><i class="fa-solid fa-arrow-up-from-bracket"></i></button>
+                </div>
+            </article>
+        </div>
+
+        <!-- Other tab panels -->
+        <div id="ppanel-reviews" class="ppanel" style="display:none;">
+            <div class="panel empty-panel"><i class="fa-solid fa-star"></i><p>Nenhuma review ainda.</p></div>
+        </div>
+        <div id="ppanel-listas" class="ppanel" style="display:none;">
+            <div class="panel empty-panel"><i class="fa-solid fa-list"></i><p>Nenhuma lista ainda.</p></div>
+        </div>
+        <div id="ppanel-jogos" class="ppanel" style="display:none;">
+            <div class="panel empty-panel"><i class="fa-solid fa-gamepad"></i><p>Nenhum jogo destacado ainda.</p></div>
+        </div>
+        <div id="ppanel-curtidas" class="ppanel" style="display:none;">
+            <div class="panel empty-panel"><i class="fa-regular fa-heart"></i><p>Nenhuma curtida ainda.</p></div>
+        </div>
+    </main>
+
+    <!-- ░░░░░ RIGHT COLUMN ░░░░░ -->
+    <aside class="pcol-right">
+
+        <!-- Amigos -->
+        <section class="panel pcard">
+            <h3 class="pcard-title">Amigos</h3>
+            <div class="friend-list">
+                <div class="friend">
+                    <div class="friend-av" style="background:linear-gradient(135deg,#b91c1c,#7f1d1d)"><i class="fa-solid fa-khanda"></i></div>
+                    <div class="friend-info">
+                        <p class="friend-name">Kratos <i class="fa-solid fa-circle online"></i></p>
+                        <p class="friend-status">Jogando God of War <i class="fa-brands fa-playstation"></i></p>
+                    </div>
+                </div>
+                <div class="friend">
+                    <div class="friend-av" style="background:linear-gradient(135deg,#15803d,#14532d)"><i class="fa-solid fa-helmet-safety"></i></div>
+                    <div class="friend-info">
+                        <p class="friend-name">Master Chief <i class="fa-solid fa-circle online"></i></p>
+                        <p class="friend-status">Jogando Halo 3 <i class="fa-brands fa-xbox"></i></p>
+                    </div>
+                </div>
+                <div class="friend">
+                    <div class="friend-av" style="background:linear-gradient(135deg,#2563eb,#1e3a8a)"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="friend-info">
+                        <p class="friend-name">Powder (Jinx) <i class="fa-regular fa-circle offline"></i></p>
+                        <p class="friend-status">Jogando League of Legends</p>
+                    </div>
+                </div>
+                <div class="friend">
+                    <div class="friend-av" style="background:linear-gradient(135deg,#525252,#262626)"><i class="fa-solid fa-pen-nib"></i></div>
+                    <div class="friend-info">
+                        <p class="friend-name">Alan Wake <i class="fa-regular fa-circle offline"></i></p>
+                        <p class="friend-status">Jogando Alan Wake <i class="fa-solid fa-gamepad"></i></p>
+                    </div>
+                </div>
+            </div>
+            <a href="#" class="show-more">Mostrar mais</a>
+        </section>
+
+        <!-- Trending Topics -->
+        <section class="panel pcard">
+            <h3 class="pcard-title">Trending Topics</h3>
+            <div class="trend-list">
+                <div class="trend"><p class="trend-loc">Trend no Brasil</p><p class="trend-tag">GTA VI</p><p class="trend-count">320k posts</p></div>
+                <div class="trend"><p class="trend-loc">Trend no Brasil</p><p class="trend-tag">Davy Jones</p><p class="trend-count">30k posts</p></div>
+                <div class="trend"><p class="trend-loc">Trend no Brasil</p><p class="trend-tag">Rockstar</p><p class="trend-count">175k posts</p></div>
+                <div class="trend"><p class="trend-loc">Trend no Brasil</p><p class="trend-tag">Miami</p><p class="trend-count">40k posts</p></div>
+            </div>
+            <a href="#" class="show-more">Mostrar mais</a>
+        </section>
+    </aside>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast">
+    <i class="fa-solid fa-check-circle"></i>
+    <span id="toast-msg">Ação realizada!</span>
+</div>
+
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+</body>
+</html>

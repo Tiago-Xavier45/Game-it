@@ -266,6 +266,36 @@ body {
 .game-counter  { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
 .counter-num   { font-weight: 700; color: var(--text-heading); }
 
+/* Sync area (dentro da Biblioteca) */
+.sync-area {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.last-sync-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.btn-sync {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 10px;
+    padding: 8px 16px;
+    color: #6366F1;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.btn-sync:hover  { background: #6366F1; color: #fff; }
+.btn-sync:disabled { opacity: 0.6; cursor: default; }
+
 .grid-area {
     flex: 1;
     overflow-y: auto;
@@ -680,3 +710,270 @@ html.light .modal-box { box-shadow: 0 20px 50px rgba(0,0,0,0.16); }
 }
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.error { background: #ef4444; box-shadow: 0 6px 20px rgba(239,68,68,0.35); }
+
+/* ═══════════════════════════════════════════════
+   PROFILE PAGE
+═══════════════════════════════════════════════ */
+.profile-body { background: var(--bg-main); }
+
+.profile-layout {
+    flex: 1;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr) 320px;
+    gap: 22px;
+    padding: 24px;
+    align-items: start;
+}
+
+.pcol-left, .pcol-right {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    position: sticky;
+    top: 0;
+}
+.pcol-center { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+/* ── Generic profile card ── */
+.pcard { padding: 18px; }
+.pcard-title {
+    font-size: 15px; font-weight: 700;
+    color: var(--text-heading);
+    margin-bottom: 16px;
+}
+
+/* ── Jogado Recentemente ── */
+.recent-list { display: flex; flex-direction: column; gap: 14px; }
+.recent-loading { display: flex; justify-content: center; padding: 16px 0; }
+
+.recent-game {
+    display: flex; gap: 12px; align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px;
+    transition: border-color 0.2s, transform 0.2s;
+}
+.recent-game:hover { border-color: rgba(99,102,241,0.4); transform: translateY(-2px); }
+
+.recent-cover {
+    width: 64px; height: 64px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--progress-track);
+}
+.recent-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.recent-name {
+    font-size: 13px; font-weight: 700; color: var(--text-heading);
+    line-height: 1.25;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.recent-progress {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--progress-track);
+    border-radius: 9999px;
+    padding: 5px 10px;
+}
+.recent-progress .progress-track { height: 6px; background: rgba(99,102,241,0.18); }
+.recent-progress .progress-num { font-size: 11px; font-weight: 700; color: #6366F1; white-space: nowrap; }
+.recent-hours {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; font-weight: 600; color: var(--text-muted);
+}
+.recent-hours .fa-steam { color: #6366F1; }
+
+/* ── Rating bars ── */
+.rating-bars, .platform-bars { display: flex; flex-direction: column; gap: 12px; }
+.rating-row, .platform-row { display: flex; align-items: center; gap: 12px; }
+.rating-num { font-size: 13px; font-weight: 700; color: var(--text-heading); width: 12px; }
+.rating-track {
+    flex: 1; height: 10px;
+    background: var(--progress-track);
+    border-radius: 9999px; overflow: hidden;
+}
+.rating-fill { height: 100%; border-radius: 9999px; background: #6366F1; }
+
+.platform-ico {
+    width: 34px; height: 34px; flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--hover-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: var(--text-primary);
+}
+
+/* ── Profile Header ── */
+.profile-header { padding: 0; overflow: hidden; position: relative; }
+.profile-banner {
+    height: 200px;
+    background: linear-gradient(135deg, #c7d2fe, #cbd5e1);
+}
+html:not(.light) .profile-banner { background: linear-gradient(135deg, #312e81, #1e293b); }
+
+.fav-games { position: absolute; top: 96px; right: 26px; text-align: left; z-index: 2; }
+.fav-title { font-size: 15px; font-weight: 700; color: var(--text-heading); margin-bottom: 10px; }
+.fav-covers { display: flex; gap: 12px; }
+.fav-cover {
+    width: 86px; height: 118px;
+    border-radius: 12px; overflow: hidden;
+    background: var(--progress-track);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    transition: transform 0.22s, box-shadow 0.22s;
+    cursor: pointer;
+}
+.fav-cover:hover { transform: translateY(-4px) scale(1.04); box-shadow: 0 12px 26px rgba(0,0,0,0.35); }
+.fav-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+.btn-edit-profile {
+    position: absolute; top: 240px; right: 26px;
+    background: #6366F1; color: #fff;
+    border: none; border-radius: 9999px;
+    padding: 10px 26px;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 3;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+}
+.btn-edit-profile:hover { background: #818cf8; }
+
+.profile-avatar {
+    position: absolute; top: 130px; left: 26px;
+    width: 132px; height: 132px;
+    border-radius: 50%;
+    border: 5px solid var(--bg-panel);
+    overflow: hidden;
+    background: linear-gradient(135deg, #6366F1, #4338ca);
+}
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.profile-info { padding: 80px 26px 26px; }
+.profile-name {
+    font-size: 26px; font-weight: 800; color: var(--text-heading);
+    display: flex; align-items: center; gap: 8px;
+}
+.verified { color: #6366F1; font-size: 18px; }
+.verified.sm { font-size: 13px; }
+.profile-bio { font-size: 15px; color: var(--text-primary); margin-top: 6px; }
+.profile-meta { font-size: 14px; color: var(--text-muted); margin-top: 10px; display: flex; align-items: center; gap: 8px; }
+.profile-follow { font-size: 14px; color: var(--text-muted); margin-top: 12px; }
+.follow-num { font-weight: 800; color: var(--text-heading); }
+.follow-lbl { margin-right: 14px; }
+
+/* ── Tabs ── */
+.profile-tabs {
+    display: flex;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+}
+.ptab {
+    flex: 1;
+    padding: 16px 8px;
+    font-size: 15px; font-weight: 600;
+    color: var(--text-muted);
+    background: transparent; border: none;
+    cursor: pointer; position: relative;
+    transition: color 0.2s, background 0.2s;
+}
+.ptab:hover { color: var(--text-heading); background: var(--hover-bg); }
+.ptab.active { color: var(--text-heading); font-weight: 800; }
+.ptab.active::after {
+    content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 48px; height: 3px; border-radius: 3px; background: #6366F1;
+}
+
+/* ── Feed / Posts ── */
+.ppanel { display: flex; flex-direction: column; gap: 16px; }
+
+.post { padding: 18px 20px; position: relative; }
+.post-menu {
+    position: absolute; top: 16px; right: 16px;
+    background: transparent; border: none;
+    color: var(--text-muted); cursor: pointer;
+    font-size: 16px; padding: 4px 8px; border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+}
+.post-menu:hover { background: var(--hover-bg); color: var(--text-heading); }
+
+.post-head { display: flex; align-items: center; gap: 12px; }
+.post-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    overflow: hidden; flex-shrink: 0;
+    background: linear-gradient(135deg, #6366F1, #4338ca);
+}
+.post-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.post-author { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.post-name { font-size: 15px; font-weight: 700; color: var(--text-heading); }
+.post-time { font-size: 14px; color: var(--text-muted); }
+.post-text { font-size: 15px; line-height: 1.6; color: var(--text-primary); margin: 14px 0 16px; }
+
+.post-actions { display: flex; align-items: center; gap: 28px; }
+.pact {
+    display: flex; align-items: center; gap: 8px;
+    background: transparent; border: none;
+    color: var(--text-muted);
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.pact i { font-size: 16px; }
+.pact.like:hover    { color: #ef4444; }
+.pact.comment:hover { color: #3b82f6; }
+.pact.share:hover   { color: #10b981; }
+.pact.send:hover    { color: #6366F1; }
+
+.empty-panel {
+    padding: 48px 20px; text-align: center;
+    color: var(--text-muted);
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.empty-panel i { font-size: 30px; color: var(--text-label); }
+.empty-panel p { font-size: 14px; }
+
+/* ── Amigos ── */
+.friend-list { display: flex; flex-direction: column; gap: 16px; }
+.friend { display: flex; align-items: center; gap: 12px; }
+.friend-av {
+    width: 44px; height: 44px; border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 16px;
+}
+.friend-info { min-width: 0; }
+.friend-name {
+    font-size: 14px; font-weight: 700; color: var(--text-heading);
+    display: flex; align-items: center; gap: 6px;
+}
+.friend-name .online  { color: #22c55e; font-size: 8px; }
+.friend-name .offline { color: var(--text-label); font-size: 8px; }
+.friend-status {
+    font-size: 12px; color: var(--text-muted); margin-top: 2px;
+    display: flex; align-items: center; gap: 6px;
+}
+
+.show-more {
+    display: inline-block; margin-top: 16px;
+    font-size: 14px; font-weight: 600; color: #6366F1;
+    text-decoration: none;
+}
+.show-more:hover { text-decoration: underline; }
+
+/* ── Trending ── */
+.trend-list { display: flex; flex-direction: column; gap: 16px; }
+.trend-loc   { font-size: 12px; color: var(--text-muted); }
+.trend-tag   { font-size: 15px; font-weight: 700; color: var(--text-heading); margin: 2px 0; }
+.trend-count { font-size: 12px; color: var(--text-muted); }
+
+/* ── Responsive ── */
+@media (max-width: 980px) {
+    .profile-layout { grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; padding: 16px; }
+    .pcol-left { display: none; }
+}
+@media (max-width: 720px) {
+    .profile-layout { grid-template-columns: minmax(0, 1fr); }
+    .pcol-right { display: none; }
+    .fav-games { display: none; }
+    .btn-edit-profile { top: 210px; }
+}

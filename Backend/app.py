@@ -30,6 +30,20 @@ app.register_blueprint(notes_bp)
 def index():
     if not session.get('user_id'):
         return redirect('/login')
+    return render_template('profile.html')
+
+
+@app.route('/perfil')
+def perfil():
+    if not session.get('user_id'):
+        return redirect('/login')
+    return render_template('profile.html')
+
+
+@app.route('/progresso')
+def progresso():
+    if not session.get('user_id'):
+        return redirect('/login')
     return render_template('index.html')
 
 
