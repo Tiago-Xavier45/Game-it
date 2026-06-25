@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, session, request
 from psycopg.types.json import Json
 from database import get_connection
+from security import login_required, current_user_id
 
 steam_bp = Blueprint('steam', __name__)
 
@@ -22,8 +23,8 @@ def get_steamid():
 
 
 def get_user_id():
-    """ID do usuário logado (fallback p/ 1 em ambiente single-user)."""
-    return session.get('user_id', 1)
+    """ID do usuário autenticado (as rotas usam @login_required)."""
+    return current_user_id()
 
 
 # ── Busca a biblioteca completa direto na Steam ─────────
@@ -170,6 +171,7 @@ def cache_is_stale(last_synced):
 
 # ── Rota principal: lê do cache (DB) ────────────────────
 @steam_bp.route('/api/steam-data')
+@login_required
 def steam_data():
     user_id = get_user_id()
     games, last_synced = load_games_from_db(user_id)
@@ -193,6 +195,7 @@ def steam_data():
 
 # ── Sincronização manual (força busca na Steam) ─────────
 @steam_bp.route('/api/steam-sync', methods=['POST'])
+@login_required
 def steam_sync():
     user_id = get_user_id()
     games, erro = fetch_games_from_steam()
@@ -209,6 +212,7 @@ def steam_sync():
 
 # ── Info de sincronização ───────────────────────────────
 @steam_bp.route('/api/steam/sync-info')
+@login_required
 def sync_info():
     _, last_synced = load_games_from_db(get_user_id())
     return jsonify({
@@ -221,6 +225,7 @@ def sync_info():
 
 # ── Rotas auxiliares ────────────────────────────────────
 @steam_bp.route('/api/steam/user')
+@login_required
 def get_user():
     key     = get_key()
     steamid = get_steamid()
@@ -234,6 +239,7 @@ def get_user():
 
 # ── Jogados recentemente (últimas sessões) ──────────────
 @steam_bp.route('/api/steam/recent')
+@login_required
 def recent_games():
     key     = get_key()
     steamid = get_steamid()
@@ -277,6 +283,7 @@ def recent_games():
         resultado.append({
             'appid':        appid,
             'name':         g.get('name', 'Jogo Desconhecido'),
+            'platform':     'steam',
             'img':          (
                 f"https://cdn.cloudflare.steamstatic.com/steam/apps/{appid}/header.jpg"
             ),
@@ -291,6 +298,7 @@ def recent_games():
 
 # ── Amigos da Steam ─────────────────────────────────────
 @steam_bp.route('/api/steam/friends')
+@login_required
 def steam_friends():
     key     = get_key()
     steamid = get_steamid()
@@ -332,12 +340,13 @@ def steam_friends():
 
 # ── Biblioteca resumida (p/ seletor de favoritos) ───────
 @steam_bp.route('/api/steam/library')
+@login_required
 def steam_library():
-    user_id = session.get('user_id', 1)
+    user_id = get_user_id()
     conn = get_connection()
     cur  = conn.cursor()
     cur.execute(
-        "SELECT appid, name FROM user_games WHERE user_id=%s ORDER BY name ASC",
+        "SELECT appid, name, playtime_forever, status, pct FROM user_games WHERE user_id=%s ORDER BY name ASC",
         (user_id,)
     )
     rows = cur.fetchall()
@@ -346,6 +355,10 @@ def steam_library():
     jogos = [{
         'appid': r['appid'],
         'name':  r['name'],
+        'platform': 'steam',
+        'playtime_forever': r.get('playtime_forever', 0) or 0,
+        'status': r.get('status') or 'Sem Conquistas',
+        'pct': float(r.get('pct') or 0),
         'cover': f"https://cdn.cloudflare.steamstatic.com/steam/apps/{r['appid']}/library_600x900.jpg",
         'header': f"https://cdn.cloudflare.steamstatic.com/steam/apps/{r['appid']}/header.jpg"
     } for r in rows]

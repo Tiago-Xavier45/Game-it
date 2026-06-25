@@ -2,6 +2,7 @@ import os
 import time
 from google import genai
 from flask import Blueprint, request, jsonify, session
+from security import login_required
 
 gemini_bp  = Blueprint('gemini', __name__)
 MODELO     = 'gemini-2.0-flash'
@@ -67,6 +68,7 @@ def chamar_gemini(prompt, modelo=None):
 
 
 @gemini_bp.route('/api/analisar-jogo', methods=['POST'])
+@login_required
 def analisar_jogo():
     data       = request.json or {}
     appid      = str(data.get('appid', ''))

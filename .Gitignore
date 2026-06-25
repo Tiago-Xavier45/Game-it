@@ -1,2 +1,18 @@
+# Ambiente Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Segredos e configuração local
 .env.env
 .env
+.secret_key
+
+# Uploads de usuários (gerados em runtime)
+Frontend/static/uploads/*
+!Frontend/static/uploads/.gitkeep
+
+# SO / editor
+.DS_Store
+Thumbs.db

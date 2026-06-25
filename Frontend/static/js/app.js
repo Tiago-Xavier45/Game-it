@@ -68,6 +68,7 @@ async function carregarDados() {
             document.getElementById('loading-state').style.display = 'none';
             document.getElementById('games-grid').style.display    = 'grid';
 
+            atualizarLabelSync(data.last_synced);
             atualizarStats();
             renderizarGrid();
         } else {
@@ -77,6 +78,25 @@ async function carregarDados() {
         console.error(e);
         alert('Erro de conexão com o servidor.');
     }
+}
+
+// Mostra "Sincronizado há X" no subheader da Biblioteca
+function atualizarLabelSync(iso) {
+    var el = document.getElementById('last-sync-label');
+    if (!el) return;
+    if (!iso) { el.innerText = ''; return; }
+
+    var quando = new Date(iso);
+    var diffMin = Math.floor((Date.now() - quando.getTime()) / 60000);
+
+    var texto;
+    if (diffMin < 1)        texto = 'Sincronizado agora';
+    else if (diffMin < 60)  texto = 'Sincronizado há ' + diffMin + ' min';
+    else {
+        var h = Math.floor(diffMin / 60);
+        texto = 'Sincronizado há ' + h + (h === 1 ? ' hora' : ' horas');
+    }
+    el.innerText = texto;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -157,8 +177,12 @@ function renderRecentes() {
 }
 
 function abrirJogoPorId(appid) {
-    var jogo = todosJogos.find(function(g) { return g.appid === appid; });
-    if (jogo) abrirGuia(jogo);
+    abrirJogo(appid);
+}
+
+// Navega para a página de perfil do jogo (game.html)
+function abrirJogo(appid) {
+    window.location.href = '/jogo/' + appid;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -185,7 +209,7 @@ function renderizarGrid() {
 
         var card     = document.createElement('div');
         card.className = 'game-card';
-        card.onclick   = (function(j) { return function() { abrirGuia(j); }; })(jogo);
+        card.onclick   = (function(j) { return function() { abrirJogo(j.appid); }; })(jogo);
 
         var placeholder = 'https://via.placeholder.com/460x215/111827/6366F1?text=' + encodeURIComponent(jogo.name);
 
@@ -486,29 +510,6 @@ async function deletarNote(noteId) {
     }
 }
 
-async function syncJogos() {
-    var icon = document.getElementById('sync-dash-icon');
-    if (icon) icon.style.animation = 'spin 1s linear infinite';
-
-    try {
-        var res  = await fetch('/api/steam-sync', { method: 'POST' });
-        var data = await res.json();
-        if (data.status === 'success') {
-            console.log('[Sync]', data.message);
-            // Recarrega os jogos
-            carregarJogos && carregarJogos();
-        }
-    } catch(e) {
-        console.error('[Sync]', e);
-    }
-
-    if (icon) icon.style.animation = '';
-}
-
-// Auto-sync a cada 2h
-setInterval(syncJogos, 2 * 60 * 60 * 1000);
-
-
 function atualizarBadgeNotes(count) {
     var badge = document.getElementById('notes-badge');
     if (count > 0) {
@@ -631,20 +632,20 @@ async function syncJogos() {
         var res  = await fetch('/api/steam-sync', { method: 'POST' });
         var data = await res.json();
         if (data.status === 'success') {
-            mostrarToast('✅ ' + data.message);
-            await carregarJogos(); // recarrega a grid
+            showToast('✅ ' + data.message);
+            await carregarDados(); // recarrega a grid a partir do cache atualizado
         } else {
-            mostrarToast('❌ ' + data.message);
+            showToast('❌ ' + data.message, true);
         }
     } catch(e) {
-        mostrarToast('❌ Erro ao sincronizar.');
+        showToast('❌ Erro ao sincronizar.', true);
     }
 
     if (btn)  btn.disabled = false;
     if (icon) icon.style.cssText = '';
 }
 
-// ── Auto-sync a cada 2h ───────────────────────────────
+// ── Auto-sync a cada 2h (enquanto a página estiver aberta) ──
 setInterval(syncJogos, 2 * 60 * 60 * 1000);
 
 

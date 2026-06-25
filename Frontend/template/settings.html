@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game It | Configurações</title>
-    <link rel="icon" type="image/svg+xml" href="static;img/Game It Logo.svg">
+    <link rel="icon" type="image/svg+xml" href="/static/img/Game It Logo.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -142,6 +142,20 @@
             background:rgba(251,191,36,.12); color:#fbbf24;
             border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700;
         }
+
+        /* Tema */
+        .theme-options { display:flex; gap:14px; flex-wrap:wrap; }
+        .theme-opt {
+            flex:1; min-width:120px;
+            display:flex; flex-direction:column; align-items:center; gap:10px;
+            background:var(--bg-base); border:2px solid var(--border);
+            border-radius:14px; padding:22px 16px; cursor:pointer;
+            color:var(--text-muted); font-size:13px; font-weight:600;
+            transition:all .2s;
+        }
+        .theme-opt i { font-size:26px; }
+        .theme-opt:hover { border-color:rgba(99,102,241,.5); color:var(--text-heading); }
+        .theme-opt.active { border-color:#6366F1; color:#6366F1; background:rgba(99,102,241,.08); }
     </style>
 </head>
 <body>
@@ -182,8 +196,9 @@
 
     <div class="s-body">
         <!-- Nav lateral -->
-        <nav class="s-nav">
-            <button class="s-nav-item active" onclick="showSection('perfil')">
+        <nav class="s-nav">            <button class="s-nav-item active" onclick="showSection('aparencia')">
+                <i class="fa-solid fa-palette" style="width:14px;"></i> Aparência
+            </button>            <button class="s-nav-item active" onclick="showSection('perfil')">
                 <i class="fa-solid fa-user" style="width:14px;"></i> Perfil
             </button>
             <button class="s-nav-item" onclick="showSection('seguranca')">
@@ -203,8 +218,30 @@
         <!-- Conteúdo -->
         <div class="s-content">
 
+            <!-- ── APARÊNCIA ── -->
+            <div id="sec-aparencia" class="s-section active">
+                <div class="s-card">
+                    <div class="s-card-title">
+                        <i class="fa-solid fa-palette" style="color:#6366F1;"></i> Tema
+                    </div>
+                    <p style="font-size:13px;color:var(--text-muted);margin:0 0 18px;">
+                        Escolha entre o modo claro e escuro. A preferência é salva neste dispositivo.
+                    </p>
+                    <div class="theme-options">
+                        <button type="button" class="theme-opt" data-theme="dark" onclick="setTheme('dark')">
+                            <i class="fa-solid fa-moon"></i>
+                            <span>Escuro</span>
+                        </button>
+                        <button type="button" class="theme-opt" data-theme="light" onclick="setTheme('light')">
+                            <i class="fa-solid fa-sun"></i>
+                            <span>Claro</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- ── PERFIL ── -->
-            <div id="sec-perfil" class="s-section active">
+            <div id="sec-perfil" class="s-section">
                 <div class="s-card">
                     <div class="s-card-title">
                         <i class="fa-solid fa-user" style="color:#6366F1;"></i> Informações do Perfil
@@ -419,6 +456,22 @@
     var s = localStorage.getItem('gameit-theme') || 'dark';
     if (s === 'light') document.getElementById('html-root').classList.add('light');
 })();
+
+// ── Tema ─────────────────────────────────────────────
+function setTheme(theme) {
+    var root = document.getElementById('html-root');
+    if (theme === 'light') root.classList.add('light');
+    else root.classList.remove('light');
+    localStorage.setItem('gameit-theme', theme);
+    syncThemeButtons();
+}
+function syncThemeButtons() {
+    var current = document.getElementById('html-root').classList.contains('light') ? 'light' : 'dark';
+    document.querySelectorAll('.theme-opt').forEach(function(b){
+        b.classList.toggle('active', b.getAttribute('data-theme') === current);
+    });
+}
+syncThemeButtons();
 
 // ── Nav ──────────────────────────────────────────────
 function showSection(id) {
