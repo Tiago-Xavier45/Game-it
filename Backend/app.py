@@ -11,6 +11,7 @@ from routes.steam  import steam_bp
 from routes.gemini import gemini_bp
 from routes.notes  import notes_bp
 from routes.auth   import auth_bp
+from routes.social import social_bp
 
 app = Flask(
     __name__,
@@ -24,10 +25,25 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(steam_bp)
 app.register_blueprint(gemini_bp)
 app.register_blueprint(notes_bp)
+app.register_blueprint(social_bp)
 
 
 @app.route('/')
 def index():
+    if not session.get('user_id'):
+        return redirect('/login')
+    return render_template('profile.html')
+
+
+@app.route('/perfil')
+def perfil():
+    if not session.get('user_id'):
+        return redirect('/login')
+    return render_template('profile.html')
+
+
+@app.route('/progresso')
+def progresso():
     if not session.get('user_id'):
         return redirect('/login')
     return render_template('index.html')

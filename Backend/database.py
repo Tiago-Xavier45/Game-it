@@ -6,7 +6,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_connection():
-    return psycopg.connect(os.getenv('DATABASE_URL'), row_factory=dict_row)
+    return psycopg.connect(
+        os.getenv('DATABASE_URL'),
+        row_factory=dict_row,
+        connect_timeout=5
+    )
 
 
 def init_db():
@@ -71,10 +75,6 @@ def init_db():
 
     cur.execute("CREATE INDEX IF NOT EXISTS idx_notes_appid ON notes(appid);")
 
-    conn.commit()
-    cur.close()
-    conn.close()
-    print("[DB] ✅ Tabelas inicializadas com sucesso.")
     cur.execute("""
         CREATE TABLE IF NOT EXISTS user_games (
             id               SERIAL        PRIMARY KEY,
@@ -88,3 +88,103 @@ def init_db():
         );
     """)
     cur.execute("CREATE INDEX IF NOT EXISTS idx_ugames_user ON user_games(user_id);")
+
+    # Colunas extras p/ cache de progresso (adiciona se não existirem)
+    cur.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                           WHERE table_name='user_games' AND column_name='status') THEN
+                ALTER TABLE user_games ADD COLUMN status VARCHAR(50) DEFAULT 'Sem Conquistas';
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                           WHERE table_name='user_games' AND column_name='pct') THEN
+                ALTER TABLE user_games ADD COLUMN pct REAL DEFAULT 0;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                           WHERE table_name='user_games' AND column_name='achievements') THEN
+                ALTER TABLE user_games ADD COLUMN achievements JSONB DEFAULT '[]'::jsonb;
+            END IF;
+        END$$;
+    """)
+
+    # Controle de última sincronização por usuário
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS sync_status (
+            user_id     INTEGER   PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+            last_synced TIMESTAMP DEFAULT NOW()
+        );
+    """)
+
+    # ── Perfil social: colunas extras em users ──────────
+    cur.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                           WHERE table_name='users' AND column_name='bio') THEN
+                ALTER TABLE users ADD COLUMN bio TEXT;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                           WHERE table_name='users' AND column_name='cover_url') THEN
+                ALTER TABLE users ADD COLUMN cover_url TEXT;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                           WHERE table_name='users' AND column_name='favorite_games') THEN
+                ALTER TABLE users ADD COLUMN favorite_games JSONB DEFAULT '[]'::jsonb;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                           WHERE table_name='users' AND column_name='display_name') THEN
+                ALTER TABLE users ADD COLUMN display_name VARCHAR(255);
+            END IF;
+        END$$;
+    """)
+
+    # ── Posts (feed estilo rede social) ─────────────────
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS posts (
+            id         SERIAL    PRIMARY KEY,
+            user_id    INTEGER   REFERENCES users(id) ON DELETE CASCADE,
+            content    TEXT      NOT NULL,
+            image_url  TEXT,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_posts_user ON posts(user_id);")
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS post_likes (
+            post_id    INTEGER REFERENCES posts(id) ON DELETE CASCADE,
+            user_id    INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            created_at TIMESTAMP DEFAULT NOW(),
+            PRIMARY KEY (post_id, user_id)
+        );
+    """)
+
+    # ── Reviews / Avaliações de jogos ───────────────────
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS reviews (
+            id         SERIAL     PRIMARY KEY,
+            user_id    INTEGER    REFERENCES users(id) ON DELETE CASCADE,
+            appid      VARCHAR(20),
+            game_name  VARCHAR(255),
+            rating     SMALLINT   NOT NULL CHECK (rating BETWEEN 1 AND 5),
+            content    TEXT,
+            created_at TIMESTAMP  DEFAULT NOW()
+        );
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_reviews_user ON reviews(user_id);")
+
+    # ── Follows (seguindo / seguidores) ─────────────────
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS follows (
+            follower_id  INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            following_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            created_at   TIMESTAMP DEFAULT NOW(),
+            PRIMARY KEY (follower_id, following_id)
+        );
+    """)
+
+    conn.commit()
+    cur.close()
+    conn.close()
+    print("[DB] ✅ Tabelas inicializadas com sucesso.")
