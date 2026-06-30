@@ -3,171 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game It | Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Game It | Progresso</title>
     <link rel="icon" type="image/svg+xml" href="/static/img/Game It Logo.svg">
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!--
-        IMPORTANTE: url_for com 'static' só funciona quando o Flask
-        encontra a pasta static_folder corretamente.
-        Se ainda der erro, substitua pela linha comentada abaixo.
-    -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- <link rel="stylesheet" href="/static/css/style.css"> -->
 </head>
-<body>
+<body class="profile-body">
 
 <!-- ══════════════════════════════════════════════════
-     NAVBAR
+     NAVBAR  (igual ao antigo: Configurações, tema, logout)
 ══════════════════════════════════════════════════ -->
 <nav class="g-nav" id="top-nav">
-    <!-- Logo -->
-<div class="nav-logo">
-    <img src="/static/img/Game It Logo.svg" width="32" height="32" alt="Game It Logo">
-    <span class="nav-title">Game <span style="color:#6366F1">It</span></span>
-</div>
+    <div class="nav-logo">
+        <img src="/static/img/Game It Logo.svg" width="32" height="32" alt="Game It Logo">
+        <span class="nav-title">Game <span style="color:#6366F1">It</span></span>
+    </div>
 
-<!-- Nav Pills -->
-<div class="nav-pills">
-    <a href="/perfil" class="nav-pill" style="text-decoration:none;">Home</a>
-    <span class="nav-pill">Review</span>
-    <a href="/perfil" class="nav-pill" style="text-decoration:none;">Perfil</a>
-    <a href="/progresso" class="nav-pill active" style="text-decoration:none;">Biblioteca</a>
-    <a href="/configuracoes" class="nav-pill" style="text-decoration:none;">
-        Configurações
-    </a>
-</div>
+    <div class="nav-pills">
+        <a href="/perfil" class="nav-pill" style="text-decoration:none;">Home</a>
+        <span class="nav-pill">Review</span>
+        <a href="/perfil" class="nav-pill" style="text-decoration:none;">Perfil</a>
+        <a href="/progresso" class="nav-pill active" style="text-decoration:none;">Progresso</a>
+    </div>
 
-<!-- Actions -->
-<div class="nav-actions">
-    <button class="btn-search" onclick="document.getElementById('search-bar').focus()">
-        <i class="fa-solid fa-magnifying-glass"></i> Pesquisar
-    </button>
-
-    <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()" title="Alternar tema">
-        <i class="fa-solid fa-sun"></i>
-    </button>
-
-    <!-- Logout -->
-    <button onclick="fazerLogout()" title="Sair"
-            style="background:rgba(239,68,68,.08);
-                   border:1px solid rgba(239,68,68,.2);
-                   border-radius:10px;padding:7px 13px;
-                   color:#f87171;font-size:13px;font-weight:700;
-                   cursor:pointer;transition:all .2s;">
-        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-    </button>
-</div>
+    <div class="nav-actions">
+        <button class="btn-search" onclick="document.getElementById('search-bar').focus()">
+            <i class="fa-solid fa-magnifying-glass"></i> Pesquisar
+        </button>
+        <a href="/configuracoes" id="nav-settings" class="theme-btn" title="Configurações"
+           style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-gear"></i>
+        </a>
+        <button onclick="fazerLogout()" title="Sair"
+                style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);
+                       border-radius:10px;padding:7px 13px;color:#f87171;font-size:13px;
+                       font-weight:700;cursor:pointer;transition:all .2s;">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </button>
+    </div>
 </nav>
 
 <!-- ══════════════════════════════════════════════════
-     LAYOUT
+     LAYOUT  (estilo perfil: 3 colunas)
 ══════════════════════════════════════════════════ -->
-<div class="layout">
+<div class="profile-layout cscroll">
 
-    <!-- LEFT SIDEBAR -->
-    <aside class="sidebar-left cscroll">
+    <!-- ░░░░░ LEFT COLUMN ░░░░░ -->
+    <aside class="pcol-left">
 
-        <div class="user-card panel">
-            <div class="user-avatar">S</div>
-            <div class="user-info">
-                <p class="user-name">Steam User</p>
-                <p class="user-status">● Online</p>
+        <!-- Card de Perfil (estilo LinkedIn) -->
+        <section class="panel pg-profile-card">
+            <div class="pg-profile-banner" id="pg-banner"></div>
+            <div class="pg-profile-avatar">
+                <img id="pg-avatar-img" src="/static/img/Game It Logo.svg" alt="Avatar">
             </div>
-        </div>
-
-        <div class="panel" style="padding:10px;">
-            <p class="sidebar-label">Biblioteca</p>
-            <button onclick="filtrarJogos('todos')"     id="btn-todos"      class="filter-btn fa">
-                <i class="fa-solid fa-gamepad"  style="width:16px;"></i> Todos
-            </button>
-            <button onclick="filtrarJogos('100')"       id="btn-platinados" class="filter-btn">
-                <i class="fa-solid fa-trophy"   style="width:16px;color:#fbbf24;"></i> Platinados
-            </button>
-            <button onclick="filtrarJogos('progresso')" id="btn-progresso"  class="filter-btn">
-                <i class="fa-solid fa-spinner"  style="width:16px;color:#6366F1;"></i> Em Progresso
-            </button>
-        </div>
-
-        <div class="panel" style="padding:10px;flex:1;overflow:hidden;">
-            <p class="sidebar-label">Recentemente</p>
-            <div id="recent-list">
-                <p class="empty-msg">Nenhum aberto ainda.</p>
+            <div class="pg-profile-body">
+                <h3 class="pg-profile-name">
+                    <span id="pg-nickname">@Jogador</span>
+                    <i class="fa-solid fa-circle-check verified sm"></i>
+                </h3>
+                <p class="pg-profile-bio" id="pg-bio">Sem bio ainda.</p>
+                <p class="pg-profile-meta">
+                    <i class="fa-regular fa-calendar"></i> <span id="pg-joined">Recentemente</span>
+                </p>
             </div>
+
+            <div class="pg-profile-stats">
+                <div class="pg-stat">
+                    <span class="pg-stat-num" id="pg-stat-total">—</span>
+                    <span class="pg-stat-lbl">Jogos</span>
+                </div>
+                <div class="pg-stat">
+                    <span class="pg-stat-num" id="pg-stat-plat" style="color:#fbbf24;">—</span>
+                    <span class="pg-stat-lbl">Platinados</span>
+                </div>
+            </div>
+
+            <div class="pg-fav">
+                <p class="pg-fav-title">Jogos Favoritos</p>
+                <div class="pg-fav-covers" id="pg-fav-covers">
+                    <div class="pg-fav-cover empty"></div>
+                    <div class="pg-fav-cover empty"></div>
+                    <div class="pg-fav-cover empty"></div>
+                </div>
+            </div>
+
+            <a href="/perfil" class="pg-profile-link">
+                Ver perfil completo <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </section>
+
+        <!-- Lateral da Biblioteca (aparece só na aba "Biblioteca") -->
+        <div id="lib-side" class="lib-side" style="display:none;">
+            <!-- Filtros da biblioteca -->
+            <section class="panel pcard">
+                <h3 class="pcard-title">Biblioteca</h3>
+                <div class="lib-filters">
+                    <button onclick="filtrarJogos('todos')" id="btn-todos" class="filter-btn fa">
+                        <i class="fa-solid fa-gamepad" style="width:16px;"></i> Todos
+                    </button>
+                    <button onclick="filtrarJogos('100')" id="btn-platinados" class="filter-btn">
+                        <i class="fa-solid fa-trophy" style="width:16px;color:#fbbf24;"></i> Platinados
+                    </button>
+                    <button onclick="filtrarJogos('progresso')" id="btn-progresso" class="filter-btn">
+                        <i class="fa-solid fa-spinner" style="width:16px;color:#6366F1;"></i> Em Progresso
+                    </button>
+                </div>
+            </section>
+
+            <!-- Recentemente -->
+            <section class="panel pcard">
+                <h3 class="pcard-title">Recentemente</h3>
+                <div id="recent-list">
+                    <p class="empty-msg">Nenhum aberto ainda.</p>
+                </div>
+            </section>
         </div>
     </aside>
 
-    <!-- MAIN -->
-    <main class="main-content">
-        <div class="subheader">
-            <div class="search-wrap">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="search-bar" oninput="aoPesquisar()"
-                       placeholder="Buscar jogo na biblioteca..." class="g-input">
-            </div>
-            <p class="game-counter">
-                <span id="game-count" class="counter-num">0</span> jogos
-            </p>
+    <!-- ░░░░░ CENTER COLUMN ░░░░░ -->
+    <main class="pcol-center">
 
-            <div class="sync-area">
-                <span id="last-sync-label" class="last-sync-label"></span>
-                <button id="btn-sync-dash" onclick="syncJogos()"
-                        class="btn-sync" title="Sincronizar jogos com a Steam">
-                    <i class="fa-solid fa-rotate" id="sync-dash-icon"></i>
-                    <span>Sincronizar</span>
-                </button>
-            </div>
+        <!-- Tópicos (tabs) -->
+        <div class="profile-tabs">
+            <button class="ptab active" data-tab="chat" onclick="switchPageTab('chat')">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Assistente IA
+            </button>
+            <button class="ptab" data-tab="biblioteca" onclick="switchPageTab('biblioteca')">
+                <i class="fa-solid fa-layer-group"></i> Biblioteca
+            </button>
+            <button class="ptab" data-tab="estatisticas" onclick="switchPageTab('estatisticas')">
+                <i class="fa-solid fa-chart-simple"></i> Estatísticas
+            </button>
         </div>
 
-        <div class="grid-area cscroll">
-            <div id="loading-state" class="loading-state">
-                <div class="spinner"></div>
-                <p class="loading-text">Carregando biblioteca da Steam...</p>
-            </div>
-            <div id="games-grid" class="games-grid" style="display:none;"></div>
+        <!-- ── Tópico: Assistente IA (chat) ── -->
+        <div id="ppanel-chat" class="ppanel">
+            <section class="panel chat-panel">
+                <div class="chat-header">
+                    <div class="chat-bot-av"><i class="fa-solid fa-robot"></i></div>
+                    <div>
+                        <p class="chat-bot-name">Agente Gamer</p>
+                        <p class="chat-bot-status"><span class="online-dot"></span> Online • powered by Gemini</p>
+                    </div>
+                </div>
+
+                <div id="chat-messages" class="chat-messages cscroll"></div>
+
+                <div class="chat-suggestions" id="chat-suggestions">
+                    <button class="chat-chip" onclick="enviarSugestao('Monte uma lista de jogos para eu zerar com base no que eu já joguei.')">
+                        <i class="fa-solid fa-flag-checkered"></i> Lista para zerar
+                    </button>
+                    <button class="chat-chip" onclick="enviarSugestao('Sugira jogos para eu comprar com base nos meus gostos e avaliações.')">
+                        <i class="fa-solid fa-cart-shopping"></i> O que comprar
+                    </button>
+                    <button class="chat-chip" onclick="enviarSugestao('O que devo jogar agora do meu backlog?')">
+                        <i class="fa-solid fa-dice"></i> Jogar do backlog
+                    </button>
+                    <button class="chat-chip" onclick="enviarSugestao('Me dê dicas para platinar meus jogos em progresso.')">
+                        <i class="fa-solid fa-trophy"></i> Dicas de platina
+                    </button>
+                </div>
+
+                <div class="chat-input-bar">
+                    <textarea id="chat-input" class="chat-input" rows="1"
+                              placeholder="Pergunte ao seu Agente Gamer..."
+                              oninput="autoGrowChat(this)"
+                              onkeydown="chatKeydown(event)"></textarea>
+                    <button id="chat-send" class="chat-send" onclick="enviarMensagemChat()" title="Enviar">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- ── Tópico: Biblioteca ── -->
+        <div id="ppanel-biblioteca" class="ppanel" style="display:none;">
+            <section class="panel pcard">
+                <div class="subheader" style="margin-bottom:16px;">
+                    <div class="search-wrap">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="search-bar" oninput="aoPesquisar()"
+                               placeholder="Buscar jogo na biblioteca..." class="g-input">
+                    </div>
+                    <p class="game-counter">
+                        <span id="game-count" class="counter-num">0</span> jogos
+                    </p>
+                    <div class="sync-area">
+                        <span id="last-sync-label" class="last-sync-label"></span>
+                        <button id="btn-sync-dash" onclick="syncJogos()"
+                                class="btn-sync" title="Sincronizar jogos com a Steam">
+                            <i class="fa-solid fa-rotate" id="sync-dash-icon"></i>
+                            <span>Sincronizar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid-area">
+                    <div id="loading-state" class="loading-state">
+                        <div class="spinner"></div>
+                        <p class="loading-text">Carregando biblioteca da Steam...</p>
+                    </div>
+                    <div id="games-grid" class="jogos-mini-grid" style="display:none;"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ── Tópico: Estatísticas ── -->
+        <div id="ppanel-estatisticas" class="ppanel" style="display:none;">
+            <section class="panel pcard">
+                <h3 class="pcard-title">Resumo da Biblioteca</h3>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-box-num" id="stat-total">—</span>
+                        <span class="stat-box-lbl">Total de Jogos</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-box-num" id="stat-plat" style="color:#fbbf24;">—</span>
+                        <span class="stat-box-lbl">Platinados</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-box-num" id="stat-prog" style="color:#6366F1;">—</span>
+                        <span class="stat-box-lbl">Em Progresso</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-box-num" id="stat-none">—</span>
+                        <span class="stat-box-lbl">Sem Troféus</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel pcard">
+                <h3 class="pcard-title">Taxa de Platina</h3>
+                <div class="progress-track" style="margin-bottom:10px;height:12px;">
+                    <div id="plat-bar" class="progress-fill" style="width:0%;"></div>
+                </div>
+                <p id="plat-pct-text" class="plat-pct" style="font-size:14px;">0%</p>
+            </section>
         </div>
     </main>
 
-    <!-- RIGHT SIDEBAR -->
-    <aside class="sidebar-right cscroll">
+    <!-- ░░░░░ RIGHT COLUMN ░░░░░ -->
+    <aside class="pcol-right">
 
-        <div class="panel" style="padding:14px;">
-            <p class="sidebar-label">Estatísticas</p>
-            <div class="stats-list">
-                <div class="stat-row">
-                    <span class="stat-label">Total</span>
-                    <span id="stat-total" class="stat-val-white">—</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Platinados</span>
-                    <span id="stat-plat" style="color:#fbbf24;" class="stat-val">—</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Em Progresso</span>
-                    <span id="stat-prog" style="color:#6366F1;" class="stat-val">—</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Sem Troféus</span>
-                    <span id="stat-none" class="stat-val">—</span>
-                </div>
+        <!-- Trending Topics (igual ao Perfil) -->
+        <section class="panel pcard">
+            <h3 class="pcard-title">Trending Topics</h3>
+            <div id="trending-list" class="trend-list">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
             </div>
-        </div>
-
-        <div class="panel" style="padding:14px;">
-            <p class="sidebar-label">Taxa de Platina</p>
-            <div class="progress-track" style="margin-bottom:8px;">
-                <div id="plat-bar" class="progress-fill" style="width:0%;"></div>
-            </div>
-            <p id="plat-pct-text" class="plat-pct">0%</p>
-        </div>
-
-        <div class="panel" style="padding:14px;flex:1;">
-            <p class="sidebar-label">Trending</p>
-            <div id="trending-list">
-                <p class="empty-msg">Carregando...</p>
-            </div>
-        </div>
+        </section>
     </aside>
 </div>
 
@@ -245,11 +331,7 @@
     <span id="toast-msg">Ação realizada!</span>
 </div>
 
-<!--
-        Se url_for falhar, use: <script src="/static/js/app.js"></script>
-    -->
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    <!-- <script src="/static/js/app.js"></script> -->
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
 </body>
 </html>

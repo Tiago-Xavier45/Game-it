@@ -29,6 +29,7 @@ function toggleTheme() {
 
 function syncThemeIcon() {
     const btn   = document.getElementById('theme-toggle');
+    if (!btn) return;
     const light = htmlRoot.classList.contains('light');
     btn.innerHTML = light
         ? '<i class="fa-solid fa-moon"></i>'
@@ -116,30 +117,90 @@ function atualizarStats() {
     document.getElementById('plat-bar').style.width    = pct + '%';
     document.getElementById('plat-pct-text').innerText = pct + '%';
 
-    var top = todosJogos
-        .filter(function(j) { return j.status === 'Em Progresso'; })
-        .sort(function(a, b) { return b.pct - a.pct; })
-        .slice(0, 5);
+    // Card de perfil (estilo LinkedIn) na coluna esquerda
+    var pgTotal = document.getElementById('pg-stat-total');
+    var pgPlat  = document.getElementById('pg-stat-plat');
+    if (pgTotal) pgTotal.innerText = total;
+    if (pgPlat)  pgPlat.innerText  = plat;
+}
 
-    var trendEl = document.getElementById('trending-list');
+// ═══════════════════════════════════════════════════════
+//  CARD DE PERFIL (estilo LinkedIn) — coluna esquerda
+// ═══════════════════════════════════════════════════════
+async function carregarPerfilProgresso() {
+    try {
+        var res  = await fetch('/api/profile');
+        var data = await res.json();
+        if (data.status !== 'success') return;
+        var p = data.profile || {};
 
-    if (top.length === 0) {
-        trendEl.innerHTML = '<p class="empty-msg">Sem dados ainda.</p>';
-        return;
-    }
+        var nick = p.nickname || 'Jogador';
+        if (nick[0] !== '@') nick = '@' + nick;
+        var nickEl = document.getElementById('pg-nickname');
+        if (nickEl) nickEl.textContent = nick;
 
+        var bioEl = document.getElementById('pg-bio');
+        if (bioEl) bioEl.textContent = p.bio || 'Sem bio ainda.';
+
+        var joinedEl = document.getElementById('pg-joined');
+        if (joinedEl) joinedEl.textContent = p.joined || 'Recentemente';
+
+        var avatar = p.avatar || '/static/img/Game It Logo.svg';
+        var avEl   = document.getElementById('pg-avatar-img');
+        if (avEl) avEl.src = avatar;
+
+        var banner = document.getElementById('pg-banner');
+        if (banner && p.cover) banner.style.backgroundImage = "url('" + p.cover + "')";
+
+        renderFavoritosProgresso(p.favorites || []);
+    } catch (e) { /* mantém placeholders */ }
+}
+
+function renderFavoritosProgresso(favs) {
+    var box = document.getElementById('pg-fav-covers');
+    if (!box) return;
     var html = '';
-    top.forEach(function(j) {
-        html += '<div onclick="abrirJogoPorId(' + j.appid + ')" class="hover-row"'
-             +  ' style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 4px;">'
-             +  '<div style="width:6px;height:6px;border-radius:50%;background:#6366F1;flex-shrink:0;"></div>'
-             +  '<span style="font-size:11px;flex:1;overflow:hidden;text-overflow:ellipsis;'
-             +  'white-space:nowrap;color:var(--text-muted);">' + j.name + '</span>'
-             +  '<span style="font-size:11px;font-weight:700;color:#6366F1;flex-shrink:0;">'
-             +  j.pct.toFixed(0) + '%</span>'
-             +  '</div>';
-    });
-    trendEl.innerHTML = html;
+    for (var i = 0; i < 3; i++) {
+        var f = favs[i];
+        if (f) {
+            html += '<a href="/jogo/' + encodeURIComponent(f.appid) + '" class="pg-fav-cover" title="'
+                  + (f.name || '').replace(/"/g, '&quot;') + '">'
+                  + '<img src="' + (f.cover || '') + '" alt="" '
+                  + "onerror=\"this.onerror=null;this.src='/static/img/Game It Logo.svg'\"></a>";
+        } else {
+            html += '<div class="pg-fav-cover empty"><i class="fa-solid fa-star"></i></div>';
+        }
+    }
+    box.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════
+//  TRENDING TOPICS (igual ao Perfil — hashtags dos posts)
+// ═══════════════════════════════════════════════════════
+async function carregarTrending() {
+    var box = document.getElementById('trending-list');
+    if (!box) return;
+    try {
+        var res  = await fetch('/api/trending');
+        var data = await res.json();
+        if (data.status !== 'success' || !data.topics.length) {
+            box.innerHTML = '<div class="empty-panel"><i class="fa-solid fa-hashtag"></i>'
+                          + '<p>Nenhum trending ainda.</p></div>';
+            return;
+        }
+        box.innerHTML = data.topics.map(function(t, i) {
+            return '<div class="trend">'
+                 + '<span class="trend-rank">#' + (i + 1) + '</span>'
+                 + '<div class="trend-meta">'
+                 + '<span class="trend-tag">' + escHtml(t.tag) + '</span>'
+                 + '<span class="trend-count">' + t.count + ' '
+                 + (t.count === 1 ? 'menção' : 'menções') + '</span>'
+                 + '</div></div>';
+        }).join('');
+    } catch (e) {
+        box.innerHTML = '<div class="empty-panel"><i class="fa-solid fa-hashtag"></i>'
+                      + '<p>Nenhum trending ainda.</p></div>';
+    }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -177,7 +238,8 @@ function renderRecentes() {
 }
 
 function abrirJogoPorId(appid) {
-    abrirJogo(appid);
+    var jogo = todosJogos.filter(function(j) { return String(j.appid) === String(appid); })[0];
+    if (jogo) abrirGuia(jogo);
 }
 
 // Navega para a página de perfil do jogo (game.html)
@@ -193,9 +255,9 @@ function renderizarGrid() {
     grid.innerHTML = '';
 
     if (jogosFiltrados.length === 0) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 0;'
-                       + 'font-size:13px;color:var(--text-muted);">'
-                       + 'Nenhum jogo encontrado para este filtro.</div>';
+        grid.innerHTML = '<div class="empty-panel" style="grid-column:1/-1;">'
+                       + '<i class="fa-solid fa-filter"></i>'
+                       + '<p>Nenhum jogo encontrado para este filtro.</p></div>';
         return;
     }
 
@@ -203,36 +265,26 @@ function renderizarGrid() {
         var is100   = jogo.status === '100%';
         var hasProg = jogo.status === 'Em Progresso';
 
-        var badgeBg  = is100 ? 'rgba(251,191,36,0.14)'  : hasProg ? 'rgba(99,102,241,0.16)'  : 'var(--badge-none-bg)';
-        var badgeTxt = is100 ? '#fbbf24'                : hasProg ? '#6366F1'                 : 'var(--badge-none-txt)';
-        var barColor = is100 ? '#fbbf24'                : '#6366F1';
+        var badgeBg  = is100 ? 'rgba(251,191,36,0.92)' : hasProg ? 'rgba(99,102,241,0.92)' : 'rgba(15,23,42,0.78)';
+        var badgeTxt = is100 ? '#1f2937'               : '#fff';
+        var label    = is100 ? '100%' : hasProg ? jogo.pct.toFixed(0) + '%' : 'Sem troféus';
 
-        var card     = document.createElement('div');
-        card.className = 'game-card';
-        card.onclick   = (function(j) { return function() { abrirJogo(j.appid); }; })(jogo);
+        var card = document.createElement('div');
+        card.className = 'jogo-mini';
+        card.title     = jogo.name;
+        card.onclick   = (function(j) { return function() { abrirGuia(j); }; })(jogo);
 
-        var placeholder = 'https://via.placeholder.com/460x215/111827/6366F1?text=' + encodeURIComponent(jogo.name);
+        var placeholder = 'https://via.placeholder.com/300x450/111827/6366F1?text='
+                        + encodeURIComponent(jogo.name);
 
-        card.innerHTML = '<div class="card-img-wrap">'
-            + '<img class="card-img"'
-            + ' src="https://steamcdn-a.akamaihd.net/steam/apps/' + jogo.appid + '/header.jpg"'
-            + ' alt="' + jogo.name + '"'
-            + ' onerror="this.src=\'' + placeholder + '\'">'
-            + '<span class="card-badge"'
-            + ' style="background:' + badgeBg + ';color:' + badgeTxt + ';">' + jogo.status + '</span>'
-            + '</div>'
-            + '<div class="card-body">'
-            + '<h3 class="card-title">' + jogo.name + '</h3>'
-            + '<div>'
-            + '<div class="card-progress-label">'
-            + '<span>Progresso</span>'
-            + '<span class="card-pct">' + jogo.pct.toFixed(1) + '%</span>'
-            + '</div>'
-            + '<div class="progress-track">'
-            + '<div class="progress-fill" style="width:' + jogo.pct + '%;background:' + barColor + ';"></div>'
-            + '</div>'
-            + '</div>'
-            + '</div>';
+        card.innerHTML =
+              '<span class="jogo-status-badge" style="background:' + badgeBg + ';color:' + badgeTxt + ';">'
+            + label + '</span>'
+            + '<img src="https://steamcdn-a.akamaihd.net/steam/apps/' + jogo.appid + '/library_600x900.jpg"'
+            + ' alt="' + escHtml(jogo.name) + '"'
+            + ' onerror="this.onerror=null;this.src=\'https://steamcdn-a.akamaihd.net/steam/apps/'
+            + jogo.appid + '/header.jpg\';this.style.aspectRatio=\'16/9\';">'
+            + '<span class="jogo-mini-name">' + escHtml(jogo.name) + '</span>';
 
         grid.appendChild(card);
     });
@@ -309,11 +361,24 @@ function aiActionButtons() {
          + '</div>';
 }
 
+// Indica se o guia atual é do tipo "bônus" (gerado mesmo com 100%)
+var guiaForcado = false;
+
 function gerarNovamente() {
     if (!jogoSelecionadoAtualmente) return;
     var aiBox = document.getElementById('ai-analysis-box');
     aiBox.innerHTML = spinnerHTML('Gerando nova análise...');
-    chamarGemini('/api/analisar-jogo?regen=1', jogoSelecionadoAtualmente, aiBox);
+    var url = guiaForcado ? '/api/analisar-jogo?regen=1&force=1' : '/api/analisar-jogo?regen=1';
+    chamarGemini(url, jogoSelecionadoAtualmente, aiBox);
+}
+
+// Botão do estado "100% completo": gera o guia bônus mesmo assim
+function gerarMesmoAssim() {
+    if (!jogoSelecionadoAtualmente) return;
+    guiaForcado = true;
+    var aiBox = document.getElementById('ai-analysis-box');
+    aiBox.innerHTML = spinnerHTML('Gerando guia bônus...');
+    chamarGemini('/api/analisar-jogo?force=1', jogoSelecionadoAtualmente, aiBox);
 }
 
 function chamarGemini(url, jogo, aiBox) {
@@ -325,7 +390,9 @@ function chamarGemini(url, jogo, aiBox) {
         body:    JSON.stringify({
             appid:      jogo.appid,
             nome:       jogo.name,
-            conquistas: jogo.achievements || []
+            conquistas: jogo.achievements || [],
+            status:     jogo.status || '',
+            pct:        jogo.pct || 0
         })
     })
     .then(function(r) { return r.json(); })
@@ -333,9 +400,20 @@ function chamarGemini(url, jogo, aiBox) {
         var seg = ((Date.now() - inicio) / 1000).toFixed(1);
 
         if (data.status === 'success') {
-            var cacheLabel = data.from_cache ? 'Carregado do cache' : 'Gerado em ' + seg + 's';
-            aiBox.innerHTML = '<div style="font-size:10px;color:var(--text-muted);margin-bottom:12px;">'
-                            + cacheLabel + '</div>'
+            // Estado "100% completo": mostra aviso + botão para gerar mesmo assim
+            if (data.completo && url.indexOf('force=1') === -1) {
+                guiaForcado = false;
+                aiBox.innerHTML = data.html
+                    + '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;justify-content:center;">'
+                    + '<button class="btn-regen" onclick="gerarMesmoAssim()">'
+                    + '<i class="fa-solid fa-wand-magic-sparkles"></i> Gerar guia bônus</button>'
+                    + '</div>';
+                return;
+            }
+
+            var cacheLabel = data.from_cache ? '<i class="fa-solid fa-bolt"></i> Carregado do cache'
+                                             : '<i class="fa-solid fa-wand-magic-sparkles"></i> Gerado em ' + seg + 's';
+            aiBox.innerHTML = '<div class="guia-cache-label">' + cacheLabel + '</div>'
                             + data.html
                             + aiActionButtons();
         } else {
@@ -534,6 +612,7 @@ function escHtml(str) {
 // ═══════════════════════════════════════════════════════
 function abrirGuia(jogo) {
     jogoSelecionadoAtualmente = jogo;
+    guiaForcado = false;
     adicionarRecente(jogo);
 
     document.getElementById('modal-game-title').innerText  = jogo.name;
@@ -676,6 +755,180 @@ function baixarGuiaDocumento() {
 }
 
 // ═══════════════════════════════════════════════════════
+//  TÓPICOS DA PÁGINA (tabs)
+// ═══════════════════════════════════════════════════════
+function switchPageTab(tab) {
+    document.querySelectorAll('.ptab').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.tab === tab);
+    });
+    ['chat', 'biblioteca', 'estatisticas'].forEach(function(t) {
+        var p = document.getElementById('ppanel-' + t);
+        if (p) p.style.display = (t === tab) ? 'flex' : 'none';
+    });
+    // A lateral (filtros + recentemente) só aparece na aba Biblioteca
+    var libSide = document.getElementById('lib-side');
+    if (libSide) libSide.style.display = (tab === 'biblioteca') ? 'flex' : 'none';
+
+    if (tab === 'chat') {
+        var inp = document.getElementById('chat-input');
+        if (inp) setTimeout(function() { inp.focus(); }, 50);
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+//  AGENTE GAMER — CHAT
+// ═══════════════════════════════════════════════════════
+var CHAT_HISTORY = [];
+var CHAT_LOADING = false;
+
+function autoGrowChat(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+}
+
+function chatKeydown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        enviarMensagemChat();
+    }
+}
+
+// Markdown simples → HTML (seguro: escapa antes)
+function renderMarkdown(text) {
+    var html = escHtml(text);
+
+    // títulos
+    html = html.replace(/^###\s+(.+)$/gm, '<h4>$1</h4>');
+    html = html.replace(/^##\s+(.+)$/gm,  '<h3>$1</h3>');
+    html = html.replace(/^#\s+(.+)$/gm,   '<h3>$1</h3>');
+
+    // negrito e itálico
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+
+    // listas (marca itens e agrupa em <ul>)
+    html = html.replace(/^(?:\s*[-*])\s+(.+)$/gm, '\u0001LI\u0001$1');
+    html = html.replace(/^(?:\s*\d+\.)\s+(.+)$/gm, '\u0001LI\u0001$1');
+    html = html.replace(/(?:\u0001LI\u0001.*(?:\n|$))+/g, function(block) {
+        var items = block.trim().split('\n').map(function(l) {
+            return '<li>' + l.replace(/^\u0001LI\u0001/, '') + '</li>';
+        }).join('');
+        return '<ul>' + items + '</ul>';
+    });
+
+    // parágrafos / quebras
+    html = html.replace(/\n{2,}/g, '</p><p>');
+    html = html.replace(/\n/g, '<br>');
+    html = '<p>' + html + '</p>';
+
+    // limpa <p>/<br> em volta de blocos
+    html = html.replace(/<p>\s*(<(?:ul|h3|h4)>)/g, '$1');
+    html = html.replace(/(<\/(?:ul|h3|h4)>)\s*<\/p>/g, '$1');
+    html = html.replace(/<br>\s*(<(?:ul|h3|h4)>)/g, '$1');
+    html = html.replace(/(<\/(?:ul|h3|h4)>)\s*<br>/g, '$1');
+    html = html.replace(/<p>\s*<\/p>/g, '');
+
+    return html;
+}
+
+function scrollChatToBottom() {
+    var box = document.getElementById('chat-messages');
+    if (box) box.scrollTop = box.scrollHeight;
+}
+
+function appendChatMessage(role, contentHtml, id) {
+    var box = document.getElementById('chat-messages');
+    if (!box) return null;
+    var wrap = document.createElement('div');
+    wrap.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot');
+    if (id) wrap.id = id;
+
+    var av = role === 'user'
+        ? '<div class="chat-msg-av user-av"><i class="fa-solid fa-user"></i></div>'
+        : '<div class="chat-msg-av bot-av"><i class="fa-solid fa-robot"></i></div>';
+
+    wrap.innerHTML = av + '<div class="chat-bubble">' + contentHtml + '</div>';
+    box.appendChild(wrap);
+    scrollChatToBottom();
+    return wrap;
+}
+
+function chatWelcome() {
+    var box = document.getElementById('chat-messages');
+    if (!box || box.children.length > 0) return;
+    appendChatMessage('bot', renderMarkdown(
+        'E aí, gamer! 🎮 Eu sou o seu **Agente Gamer**. Posso montar listas de jogos '
+        + 'para zerar, sugerir o que comprar, dar dicas de platina e te ajudar a escolher '
+        + 'o próximo jogo do seu backlog. Manda ver — pergunte qualquer coisa ou use as '
+        + 'sugestões abaixo!'
+    ));
+}
+
+function enviarSugestao(texto) {
+    var inp = document.getElementById('chat-input');
+    if (inp) inp.value = texto;
+    enviarMensagemChat();
+}
+
+async function enviarMensagemChat() {
+    if (CHAT_LOADING) return;
+    var inp = document.getElementById('chat-input');
+    if (!inp) return;
+    var msg = inp.value.trim();
+    if (!msg) return;
+
+    inp.value = '';
+    autoGrowChat(inp);
+
+    appendChatMessage('user', escHtml(msg).replace(/\n/g, '<br>'));
+    CHAT_HISTORY.push({ role: 'user', content: msg });
+
+    CHAT_LOADING = true;
+    var sendBtn = document.getElementById('chat-send');
+    if (sendBtn) sendBtn.disabled = true;
+
+    var typingId = 'chat-typing';
+    appendChatMessage('bot',
+        '<div class="chat-typing"><span></span><span></span><span></span></div>', typingId);
+
+    try {
+        var res = await fetch('/api/gemini-chat', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ message: msg, history: CHAT_HISTORY.slice(0, -1) })
+        });
+        var data = await res.json();
+
+        var typing = document.getElementById(typingId);
+        if (typing) typing.remove();
+
+        if (data.status === 'success') {
+            appendChatMessage('bot', renderMarkdown(data.reply));
+            CHAT_HISTORY.push({ role: 'assistant', content: data.reply });
+        } else {
+            appendChatMessage('bot',
+                '<div class="chat-error"><i class="fa-solid fa-triangle-exclamation"></i> '
+                + escHtml(data.message || 'Erro ao falar com a IA.') + '</div>');
+        }
+    } catch (e) {
+        var t = document.getElementById(typingId);
+        if (t) t.remove();
+        appendChatMessage('bot',
+            '<div class="chat-error"><i class="fa-solid fa-triangle-exclamation"></i> '
+            + 'Erro de conexão com o servidor.</div>');
+    }
+
+    CHAT_LOADING = false;
+    if (sendBtn) sendBtn.disabled = false;
+    scrollChatToBottom();
+}
+
+// ═══════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════
-window.onload = carregarDados;
+window.onload = function() {
+    carregarDados();
+    carregarTrending();
+    carregarPerfilProgresso();
+    chatWelcome();
+};
