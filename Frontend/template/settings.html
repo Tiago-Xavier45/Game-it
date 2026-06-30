@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="pt-BR" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game It | Configurações</title>
+    <link rel="icon" type="image/svg+xml" href="/static/img/Game It Logo.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body { margin:0; }
+        .s-layout {
+            min-height:100vh; background:var(--bg-base);
+            display:flex; flex-direction:column;
+        }
+        .s-topbar {
+            background:var(--bg-panel); border-bottom:1px solid var(--border);
+            padding:0 28px; height:60px; display:flex; align-items:center; gap:16px;
+        }
+        .s-topbar-logo {
+            font-size:18px; font-weight:800; color:var(--text-heading);
+            text-decoration:none;
+        }
+        .s-topbar-back {
+            margin-left:auto; font-size:13px; color:#6366F1;
+            text-decoration:none; display:flex; align-items:center; gap:6px;
+        }
+        .s-topbar-back:hover { text-decoration:underline; }
+
+        .s-body {
+            display:flex; flex:1; max-width:900px; margin:0 auto;
+            width:100%; padding:32px 24px; gap:28px; box-sizing:border-box;
+        }
+
+        /* Sidebar de seções */
+        .s-nav {
+            width:200px; flex-shrink:0;
+            display:flex; flex-direction:column; gap:4px;
+        }
+        .s-nav-item {
+            display:flex; align-items:center; gap:10px;
+            padding:10px 14px; border-radius:10px; cursor:pointer;
+            font-size:13px; font-weight:600; color:var(--text-muted);
+            transition:all .2s; border:none; background:none; text-align:left;
+        }
+        .s-nav-item:hover { background:rgba(99,102,241,.08); color:var(--text-heading); }
+        .s-nav-item.active { background:#6366F1; color:#fff; }
+
+        /* Conteúdo */
+        .s-content { flex:1; display:flex; flex-direction:column; gap:0; }
+        .s-section { display:none; }
+        .s-section.active { display:flex; flex-direction:column; gap:20px; }
+
+        .s-card {
+            background:var(--bg-panel); border:1px solid var(--border);
+            border-radius:16px; padding:24px;
+        }
+        .s-card-title {
+            font-size:15px; font-weight:800; color:var(--text-heading);
+            margin-bottom:18px; display:flex; align-items:center; gap:8px;
+        }
+
+        .f-group { display:flex; flex-direction:column; gap:5px; margin-bottom:14px; }
+        .f-label {
+            font-size:11px; font-weight:700; color:var(--text-muted);
+            text-transform:uppercase; letter-spacing:.5px;
+            display:flex; align-items:center; gap:6px;
+        }
+        .f-input {
+            background:var(--bg-base); border:1px solid var(--border);
+            border-radius:10px; padding:11px 14px; font-size:14px;
+            color:var(--text-heading); outline:none; transition:border-color .2s;
+            box-sizing:border-box; width:100%;
+        }
+        .f-input:focus { border-color:#6366F1; }
+        .f-input:disabled { opacity:.5; cursor:not-allowed; }
+
+        .btn-save {
+            background:#6366F1; color:#fff; border:none; border-radius:10px;
+            padding:11px 22px; font-size:14px; font-weight:700;
+            cursor:pointer; transition:all .2s;
+        }
+        .btn-save:hover { background:#4f46e5; }
+        .btn-save:disabled { opacity:.5; cursor:not-allowed; }
+
+        .btn-danger {
+            background:rgba(239,68,68,.1); color:#f87171; border:1px solid rgba(239,68,68,.25);
+            border-radius:10px; padding:11px 22px; font-size:14px; font-weight:700;
+            cursor:pointer; transition:all .2s;
+        }
+        .btn-danger:hover { background:rgba(239,68,68,.2); }
+
+        .s-ok  { color:#34d399; font-size:13px; display:none; margin-top:8px; }
+        .s-err { color:#f87171; font-size:13px; display:none; margin-top:8px; }
+
+        /* 2FA */
+        .twofa-setup {
+            background:rgba(99,102,241,.07); border:1px solid rgba(99,102,241,.2);
+            border-radius:12px; padding:20px; text-align:center;
+            display:none; flex-direction:column; align-items:center; gap:14px;
+        }
+        .twofa-setup.show { display:flex; }
+        .twofa-qr { border-radius:10px; border:3px solid #6366F1; }
+        .twofa-secret {
+            font-family:monospace; font-size:13px; color:#6366F1;
+            background:var(--bg-base); padding:8px 16px; border-radius:8px;
+            letter-spacing:2px;
+        }
+        .twofa-code-input {
+            font-size:22px; letter-spacing:8px; text-align:center;
+            background:var(--bg-base); border:1px solid var(--border);
+            border-radius:10px; padding:12px; width:100%; color:var(--text-heading);
+            outline:none; box-sizing:border-box;
+        }
+        .twofa-code-input:focus { border-color:#6366F1; }
+
+        /* Tooltip */
+        .tip-wrap { position:relative; display:inline-flex; }
+        .tip-icon {
+            width:15px; height:15px; border-radius:50%;
+            background:rgba(99,102,241,.18); color:#6366F1;
+            font-size:10px; font-weight:700; display:inline-flex;
+            align-items:center; justify-content:center; cursor:help;
+        }
+        .tip-box {
+            position:absolute; left:20px; top:-4px;
+            background:var(--bg-panel); border:1px solid var(--border);
+            border-radius:12px; padding:14px; width:220px;
+            font-size:12px; color:var(--text-muted); z-index:200;
+            display:none; line-height:1.6; box-shadow:0 8px 24px rgba(0,0,0,.35);
+        }
+        .tip-box a { color:#6366F1; text-decoration:underline; }
+        .tip-wrap:hover .tip-box { display:block; }
+
+        .badge-ok { 
+            background:rgba(52,211,153,.12); color:#34d399;
+            border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700;
+        }
+        .badge-no {
+            background:rgba(251,191,36,.12); color:#fbbf24;
+            border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700;
+        }
+
+        /* Tema */
+        .theme-options { display:flex; gap:14px; flex-wrap:wrap; }
+        .theme-opt {
+            flex:1; min-width:120px;
+            display:flex; flex-direction:column; align-items:center; gap:10px;
+            background:var(--bg-base); border:2px solid var(--border);
+            border-radius:14px; padding:22px 16px; cursor:pointer;
+            color:var(--text-muted); font-size:13px; font-weight:600;
+            transition:all .2s;
+        }
+        .theme-opt i { font-size:26px; }
+        .theme-opt:hover { border-color:rgba(99,102,241,.5); color:var(--text-heading); }
+        .theme-opt.active { border-color:#6366F1; color:#6366F1; background:rgba(99,102,241,.08); }
+    </style>
+</head>
+<body>
+
+<div class="s-layout">
+    <!-- Topbar -->
+<div class="s-topbar">
+    <img src="/static/img/Game It Logo.svg" width="28" height="28"
+         onerror="this.style.display='none'">
+    <a href="/" class="s-topbar-logo">Game <span style="color:#6366F1">It</span></a>
+
+    <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
+        <!-- Sync -->
+        <button id="btn-sync" onclick="sincronizarJogos()"
+                style="display:flex;align-items:center;gap:6px;
+                       background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);
+                       border-radius:10px;padding:8px 14px;color:#6366F1;
+                       font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;">
+            <i class="fa-solid fa-rotate" id="sync-icon"></i>
+            Sincronizar Jogos
+        </button>
+
+        <!-- Logout -->
+        <button onclick="fazerLogout()"
+                style="display:flex;align-items:center;gap:6px;
+                       background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);
+                       border-radius:10px;padding:8px 14px;color:#f87171;
+                       font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            Sair
+        </button>
+
+        <a href="/" class="s-topbar-back">
+            <i class="fa-solid fa-arrow-left"></i> Dashboard
+        </a>
+    </div>
+</div>
+
+    <div class="s-body">
+        <!-- Nav lateral -->
+        <nav class="s-nav">            <button class="s-nav-item active" onclick="showSection('aparencia')">
+                <i class="fa-solid fa-palette" style="width:14px;"></i> Aparência
+            </button>            <button class="s-nav-item active" onclick="showSection('perfil')">
+                <i class="fa-solid fa-user" style="width:14px;"></i> Perfil
+            </button>
+            <button class="s-nav-item" onclick="showSection('seguranca')">
+                <i class="fa-solid fa-lock" style="width:14px;"></i> Segurança
+            </button>
+            <button class="s-nav-item" onclick="showSection('steam')">
+                <i class="fa-brands fa-steam" style="width:14px;"></i> Steam
+            </button>
+            <button class="s-nav-item" onclick="showSection('ia')">
+                <i class="fa-solid fa-wand-magic-sparkles" style="width:14px;"></i> IA / Gemini
+            </button>
+            <button class="s-nav-item" onclick="showSection('conta')">
+                <i class="fa-solid fa-shield-halved" style="width:14px;"></i> 2FA
+            </button>
+        </nav>
+
+        <!-- Conteúdo -->
+        <div class="s-content">
+
+            <!-- ── APARÊNCIA ── -->
+            <div id="sec-aparencia" class="s-section active">
+                <div class="s-card">
+                    <div class="s-card-title">
+                        <i class="fa-solid fa-palette" style="color:#6366F1;"></i> Tema
+                    </div>
+                    <p style="font-size:13px;color:var(--text-muted);margin:0 0 18px;">
+                        Escolha entre o modo claro e escuro. A preferência é salva neste dispositivo.
+                    </p>
+                    <div class="theme-options">
+                        <button type="button" class="theme-opt" data-theme="dark" onclick="setTheme('dark')">
+                            <i class="fa-solid fa-moon"></i>
+                            <span>Escuro</span>
+                        </button>
+                        <button type="button" class="theme-opt" data-theme="light" onclick="setTheme('light')">
+                            <i class="fa-solid fa-sun"></i>
+                            <span>Claro</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── PERFIL ── -->
+            <div id="sec-perfil" class="s-section">
+                <div class="s-card">
+                    <div class="s-card-title">
+                        <i class="fa-solid fa-user" style="color:#6366F1;"></i> Informações do Perfil
+                    </div>
+                    <div class="f-group">
+                        <label class="f-label">Nome</label>
+                        <input id="p-name" type="text" class="f-input" placeholder="Seu nome">
+                    </div>
+                    <div class="f-group">
+                        <label class="f-label">E-mail</label>
+                        <input id="p-email" type="email" class="f-input" disabled
+                               placeholder="seu@email.com"
+                               title="Alteração de email em breve">
+                        <span style="font-size:11px;color:var(--text-muted);">
+                            Alteração de e-mail em breve.
+                        </span>
+                    </div>
+                    <button class="btn-save" onclick="salvarPerfil()">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar
+                    </button>
+                    <p class="s-ok" id="ok-perfil">✅ Perfil atualizado!</p>
+                    <p class="s-err" id="err-perfil"></p>
+                </div>
+            </div>
+
+            <!-- ── SEGURANÇA ── -->
+            <div id="sec-seguranca" class="s-section">
+                <div class="s-card">
+                    <div class="s-card-title">
+                        <i class="fa-solid fa-lock" style="color:#6366F1;"></i> Alterar Senha
+                    </div>
+                    <div class="f-group">
+                        <label class="f-label">Senha Atual</label>
+                        <input id="s-cur" type="password" class="f-input" placeholder="••••••••">
+                    </div>
+                    <div class="f-group">
+                        <label class="f-label">Nova Senha</label>
+                        <input id="s-new" type="password" class="f-input"
+                               placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <div class="f-group">
+                        <label class="f-label">Confirmar Nova Senha</label>
+                        <input id="s-conf" type="password" class="f-input" placeholder="Repita">
+                    </div>
+                    <button class="btn-save" onclick="alterarSenha()">
+                        <i class="fa-solid fa-key"></i> Alterar Senha
+                    </button>
+                    <p class="s-ok"  id="ok-senha"></p>
+                    <p class="s-err" id="err-senha"></p>
+                </div>
+            </div>
+
+            <!-- ── STEAM ── -->
+            <div id="sec-steam" class="s-section">
+                <div class="s-card">
+                    <div class="s-card-title">
+                        <i class="fa-brands fa-steam" style="color:#6366F1;"></i> Configurações Steam
+                    </div>
+
+                    <div class="f-group">
+                        <label class="f-label">
+                            Steam ID
+                            <div class="tip-wrap">
+                                <span class="tip-icon">i</span>
+                                <div class="tip-box">
+                                    Número único da sua conta Steam.<br><br>
+                                    🔗 <a href="https://www.steamidfinder.com/" target="_blank">steamidfinder.com</a><br><br>
+                                    Ou: steamcommunity.com/profiles/<strong>[ID]</strong>
+                                </div>
+                            </div>
+                            <span id="badge-sid"></span>
+                        </label>
+                        <input id="st-id" type="text" class="f-input"
+                               placeholder="Ex: 76561198000000000">
+                    </div>
+
+                    <div class="f-group">
+                        <label class="f-label">
+                            Steam API Key
+                            <div class="tip-wrap">
+                                <span class="tip-icon">i</span>
+                                <div class="tip-box">
+                                    Necessária para acessar sua biblioteca.<br><br>
+                                    🔗 <a href="https://steamcommunity.com/dev/apikey" target="_blank">steamcommunity.com/dev/apikey</a>
+                                </div>
+                            </div>
+                            <span id="badge-skey"></span>
+                        </label>
+                        <input id="st-key" type="text" class="f-input"
+                               placeholder="Ex: A1B2C3D4...">
+                    </div>
+
+                    <button class="btn-save" onclick="salvarSteam()">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar
+                    </button>
+                    <p class="s-ok"  id="ok-steam"></p>
+                    <p class="s-err" id="err-steam"></p>
+                </div>
+            </div>
+
+            <!-- ── IA ── -->
+            <div id="sec-ia" class="s-section">
+                <div class="s-card">
+                    <div class="s-card-title">
+                        <i class="fa-solid fa-wand-magic-sparkles" style="color:#6366F1;"></i>
+                        Gemini API Key
+                    </div>
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">
+                        Usando sua própria key, você não depende da cota compartilhada do sistema
+                        e evita erros de limite (429).
+                    </p>
+                    <div class="f-group">
+                        <label class="f-label">
+                            Gemini API Key
+                            <div class="tip-wrap">
+                                <span class="tip-icon">i</span>
+                                <div class="tip-box">
+                                    Chave gratuita do Google para geração de guias com IA.<br><br>
+                                    🔗 <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
+                                </div>
+                            </div>
+                            <span id="badge-gkey"></span>
+                        </label>
+                        <input id="g-key" type="text" class="f-input" placeholder="Ex: AIzaSy...">
+                    </div>
+                    <button class="btn-save" onclick="salvarGemini()">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar
+                    </button>
+                    <p class="s-ok"  id="ok-gemini"></p>
+                    <p class="s-err" id="err-gemini"></p>
+                </div>
+            </div>
+
+            <!-- ── 2FA ── -->
+            <div id="sec-conta" class="s-section">
+                <div class="s-card">
+                    <div class="s-card-title">
+                        <i class="fa-solid fa-shield-halved" style="color:#6366F1;"></i>
+                        Verificação em 2 Etapas (2FA)
+                    </div>
+
+                    <!-- Status 2FA -->
+                    <div id="twofa-status" style="margin-bottom:18px;">
+                        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">
+                            Adicione uma camada extra de segurança. Ao fazer login, você
+                            precisará de um código do <strong style="color:var(--text-heading);">
+                            Google Authenticator</strong> ou app similar.
+                        </p>
+                    </div>
+
+                    <!-- Quando 2FA está desativado -->
+                    <div id="twofa-off">
+                        <button class="btn-save" onclick="iniciar2FA()">
+                            <i class="fa-solid fa-shield-halved"></i> Ativar 2FA
+                        </button>
+                    </div>
+
+                    <!-- Setup: QR + código -->
+                    <div class="twofa-setup" id="twofa-setup">
+                        <p style="font-size:13px;color:var(--text-muted);">
+                            1. Escaneie o QR Code com o Google Authenticator
+                        </p>
+                        <img id="twofa-qr-img" src="" class="twofa-qr" width="180" height="180">
+                        <p style="font-size:12px;color:var(--text-muted);">
+                            Ou insira o código manualmente:
+                        </p>
+                        <div class="twofa-secret" id="twofa-secret-txt"></div>
+                        <p style="font-size:13px;color:var(--text-muted);">
+                            2. Digite o código gerado para confirmar:
+                        </p>
+                        <input id="twofa-confirm-code" type="text"
+                               class="twofa-code-input" placeholder="000000" maxlength="6">
+                        <button class="btn-save" style="width:100%;" onclick="confirmar2FA()">
+                            Confirmar Ativação
+                        </button>
+                        <button onclick="document.getElementById('twofa-setup').classList.remove('show')"
+                                style="background:none;border:none;color:var(--text-muted);
+                                       cursor:pointer;font-size:13px;">
+                            Cancelar
+                        </button>
+                    </div>
+
+                    <!-- Quando 2FA está ativado -->
+                    <div id="twofa-on" style="display:none;">
+                        <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);
+                                    border-radius:10px;padding:14px;margin-bottom:16px;">
+                            <p style="color:#34d399;font-size:13px;font-weight:700;">
+                                ✅ 2FA está ativo na sua conta
+                            </p>
+                        </div>
+                        <div class="f-group">
+                            <label class="f-label">Digite seu código 2FA para desativar</label>
+                            <input id="twofa-dis-code" type="text"
+                                   class="twofa-code-input" placeholder="000000" maxlength="6">
+                        </div>
+                        <button class="btn-danger" onclick="desativar2FA()">
+                            <i class="fa-solid fa-shield-xmark"></i> Desativar 2FA
+                        </button>
+                    </div>
+
+                    <p class="s-ok"  id="ok-2fa"></p>
+                    <p class="s-err" id="err-2fa"></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+(function(){
+    var s = localStorage.getItem('gameit-theme') || 'dark';
+    if (s === 'light') document.getElementById('html-root').classList.add('light');
+})();
+
+// ── Tema ─────────────────────────────────────────────
+function setTheme(theme) {
+    var root = document.getElementById('html-root');
+    if (theme === 'light') root.classList.add('light');
+    else root.classList.remove('light');
+    localStorage.setItem('gameit-theme', theme);
+    syncThemeButtons();
+}
+function syncThemeButtons() {
+    var current = document.getElementById('html-root').classList.contains('light') ? 'light' : 'dark';
+    document.querySelectorAll('.theme-opt').forEach(function(b){
+        b.classList.toggle('active', b.getAttribute('data-theme') === current);
+    });
+}
+syncThemeButtons();
+
+// ── Nav ──────────────────────────────────────────────
+function showSection(id) {
+    document.querySelectorAll('.s-section').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.s-nav-item').forEach(function(el){ el.classList.remove('active'); });
+    document.getElementById('sec-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
+// ── Load user data ───────────────────────────────────
+async function loadUser() {
+    var res  = await fetch('/api/auth/me');
+    if (res.status === 401) { window.location.href = '/login'; return; }
+    var data = await res.json();
+    var u    = data.user;
+
+    document.getElementById('p-name').value  = u.name  || '';
+    document.getElementById('p-email').value = u.email || '';
+
+    // Badges
+    setBadge('badge-sid',  u.has_steam,  'Steam ID');
+    setBadge('badge-skey', u.has_steam,  'API Key');
+    setBadge('badge-gkey', u.has_gemini, 'Gemini Key');
+
+    // 2FA status
+    if (u.two_factor_enabled) {
+        document.getElementById('twofa-off').style.display = 'none';
+        document.getElementById('twofa-on').style.display  = 'block';
+    }
+}
+
+function setBadge(id, ok, label) {
+    var el = document.getElementById(id);
+    el.className   = ok ? 'badge-ok' : 'badge-no';
+    el.textContent = ok ? '✓ Configurado' : '⚠ Não configurado';
+}
+
+function showOk(id, msg)  {
+    var el = document.getElementById(id);
+    el.textContent = msg || '✅ Salvo!';
+    el.style.display = 'block';
+    setTimeout(function(){ el.style.display = 'none'; }, 3000);
+}
+function showEr(id, msg)  {
+    var el = document.getElementById(id);
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(function(){ el.style.display = 'none'; }, 4000);
+}
+
+// ── Perfil ───────────────────────────────────────────
+async function salvarPerfil() {
+    var res  = await fetch('/api/auth/profile', {
+        method:'PUT', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ name: document.getElementById('p-name').value })
+    });
+    var data = await res.json();
+    data.status === 'success' ? showOk('ok-perfil') : showEr('err-perfil', data.message);
+}
+
+// ── Senha ─────────────────────────────────────────────
+async function alterarSenha() {
+    var np = document.getElementById('s-new').value;
+    var nc = document.getElementById('s-conf').value;
+    if (np !== nc) { showEr('err-senha', 'As senhas não coincidem.'); return; }
+
+    var res  = await fetch('/api/auth/password', {
+        method:'PUT', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+            current_password: document.getElementById('s-cur').value,
+            new_password:     np
+        })
+    });
+    var data = await res.json();
+    if (data.status === 'success') {
+        showOk('ok-senha', '✅ Senha alterada!');
+        ['s-cur','s-new','s-conf'].forEach(function(id){
+            document.getElementById(id).value = '';
+        });
+    } else {
+        showEr('err-senha', data.message);
+    }
+}
+
+// ── Steam ─────────────────────────────────────────────
+async function salvarSteam() {
+    var res  = await fetch('/api/auth/profile', {
+        method:'PUT', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+            steam_id:      document.getElementById('st-id').value.trim(),
+            steam_api_key: document.getElementById('st-key').value.trim()
+        })
+    });
+    var data = await res.json();
+    data.status === 'success' ? showOk('ok-steam', '✅ Steam salvo!') : showEr('err-steam', data.message);
+    if (data.status === 'success') loadUser();
+}
+
+// ── Gemini ────────────────────────────────────────────
+async function salvarGemini() {
+    var res  = await fetch('/api/auth/profile', {
+        method:'PUT', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ gemini_api_key: document.getElementById('g-key').value.trim() })
+    });
+    var data = await res.json();
+    data.status === 'success' ? showOk('ok-gemini', '✅ Chave salva!') : showEr('err-gemini', data.message);
+    if (data.status === 'success') loadUser();
+}
+
+// ── 2FA ───────────────────────────────────────────────
+async function iniciar2FA() {
+    var res  = await fetch('/api/auth/2fa/setup', { method:'POST' });
+    var data = await res.json();
+    if (data.status === 'success') {
+        document.getElementById('twofa-qr-img').src    = data.qr;
+        document.getElementById('twofa-secret-txt').textContent = data.secret;
+        document.getElementById('twofa-setup').classList.add('show');
+    }
+}
+
+async function confirmar2FA() {
+    var code = document.getElementById('twofa-confirm-code').value;
+    var res  = await fetch('/api/auth/2fa/confirm', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ code })
+    });
+    var data = await res.json();
+    if (data.status === 'success') {
+        showOk('ok-2fa', '✅ 2FA ativado com sucesso!');
+        document.getElementById('twofa-setup').classList.remove('show');
+        document.getElementById('twofa-off').style.display = 'none';
+        document.getElementById('twofa-on').style.display  = 'block';
+    } else {
+        showEr('err-2fa', data.message);
+    }
+}
+
+async function desativar2FA() {
+    var code = document.getElementById('twofa-dis-code').value;
+    var res  = await fetch('/api/auth/2fa/disable', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ code })
+    });
+    var data = await res.json();
+    if (data.status === 'success') {
+        showOk('ok-2fa', '✅ 2FA desativado.');
+        document.getElementById('twofa-on').style.display  = 'none';
+        document.getElementById('twofa-off').style.display = 'block';
+    } else {
+        showEr('err-2fa', data.message);
+    }
+}
+
+async function fazerLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.href = '/login';
+}
+
+async function sincronizarJogos() {
+    var btn  = document.getElementById('btn-sync');
+    var icon = document.getElementById('sync-icon');
+    btn.disabled = true;
+    icon.style.animation = 'spin 1s linear infinite';
+
+    try {
+        var res  = await fetch('/api/steam-sync', { method: 'POST' });
+        var data = await res.json();
+        if (data.status === 'success') {
+            showOk('ok-perfil', '✅ ' + data.message);
+        } else {
+            showEr('err-perfil', data.message);
+        }
+    } catch(e) {
+        showEr('err-perfil', 'Erro ao sincronizar.');
+    }
+
+    btn.disabled = false;
+    icon.style.animation = '';
+}
+
+
+loadUser();
+</script>
+</body>
+</html>

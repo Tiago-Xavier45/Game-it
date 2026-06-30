@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pt-BR" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game It</title>
+    <link rel="icon" type="image/svg+xml" href="/static/img/Game It Logo.svg">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        @media (prefers-color-scheme: light) {
+    :root {
+        --bg:       #f4f4f8;
+        --panel:    #ffffff;
+        --border:   #e2e2ee;
+        --text:     #1a1a2e;
+        --muted:    #6b6b8a;
+        --input-bg: #f8f8fc;
+    }
+    body { background: var(--bg); }
+}
+
+/* Ou via toggle manual */
+html.light {
+    --bg:       #f4f4f8;
+    --panel:    #ffffff;
+    --border:   #e2e2ee;
+    --text:     #1a1a2e;
+    --muted:    #6b6b8a;
+    --input-bg: #f8f8fc;
+}
+
+
+        :root {
+            --bg:        #0f0f13;
+            --panel:     #16161d;
+            --border:    #2a2a38;
+            --accent:    #6366F1;
+            --accent-hv: #4f46e5;
+            --text:      #f1f1f5;
+            --muted:     #8b8ba8;
+            --input-bg:  #1e1e28;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* ── Card principal ── */
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 440px;
+            padding: 44px 40px 36px;
+            box-shadow: 0 24px 80px rgba(0,0,0,.5);
+        }
+
+        /* ── Logo ── */
+        .logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 32px;
+        }
+        .logo img { width: 56px; height: 56px; }
+        .logo-name {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+        .logo-name span { color: var(--accent); }
+        .logo-sub {
+            font-size: 13px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: -4px;
+        }
+
+        /* ── Tabs ── */
+        .tabs {
+            display: flex;
+            background: var(--bg);
+            border-radius: 14px;
+            padding: 4px;
+            margin-bottom: 28px;
+            gap: 4px;
+        }
+        .tab {
+            flex: 1;
+            padding: 11px;
+            border-radius: 11px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .tab.active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(99,102,241,.35);
+        }
+
+        /* ── Form ── */
+        .form { display: flex; flex-direction: column; gap: 16px; }
+
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .input-wrap { position: relative; }
+        .input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 13px 16px;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .input::placeholder { color: var(--muted); }
+        .input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+        }
+        .input.with-icon { padding-right: 46px; }
+        .eye-btn {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+        }
+        .eye-btn:hover { color: var(--text); }
+
+        /* ── Forgot / Helper ── */
+        .row-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .link {
+            font-size: 12px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .link:hover { text-decoration: underline; }
+
+        /* ── Botão principal ── */
+        .btn-main {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            transition: all .2s;
+            box-shadow: 0 4px 18px rgba(99,102,241,.3);
+            margin-top: 4px;
+        }
+        .btn-main:hover { background: var(--accent-hv); transform: translateY(-1px); }
+        .btn-main:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+        /* ── Divider ── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 4px 0;
+        }
+        .div-line { flex: 1; height: 1px; background: var(--border); }
+        .div-txt { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+        /* ── Social ── */
+        .social-row { display: flex; gap: 10px; }
+        .btn-social {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 8px;
+            background: var(--input-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .btn-social:hover {
+            border-color: var(--accent);
+            background: rgba(99,102,241,.07);
+        }
+
+        /* ── Bottom link ── */
+        .bottom-txt {
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+        .bottom-txt a { color: var(--accent); font-weight: 700; text-decoration: none; }
+        .bottom-txt a:hover { text-decoration: underline; }
+
+        /* ── Erro ── */
+        .err-box {
+            background: rgba(239,68,68,.08);
+            border: 1px solid rgba(239,68,68,.2);
+            border-radius: 10px;
+            padding: 11px 14px;
+            font-size: 13px;
+            color: #f87171;
+            display: none;
+            text-align: center;
+        }
+
+        /* ── Opcional (Steam/Gemini) ── */
+        .opt-box {
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .opt-hdr {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 16px;
+            cursor: pointer;
+            user-select: none;
+            transition: background .2s;
+        }
+        .opt-hdr:hover { background: rgba(255,255,255,.03); }
+        .opt-title { font-size: 13px; font-weight: 700; flex: 1; }
+        .opt-badge {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 400;
+        }
+        .opt-arrow { color: var(--muted); font-size: 12px; transition: transform .25s; }
+        .opt-arrow.open { transform: rotate(180deg); }
+        .opt-body {
+            display: none;
+            flex-direction: column;
+            gap: 14px;
+            padding: 0 16px 16px;
+        }
+        .opt-body.open { display: flex; }
+
+        .warn {
+            background: rgba(251,191,36,.07);
+            border: 1px solid rgba(251,191,36,.2);
+            border-radius: 10px;
+            padding: 10px 13px;
+            font-size: 12px;
+            color: #fbbf24;
+            display: flex;
+            gap: 8px;
+            line-height: 1.5;
+        }
+
+        /* ── Tooltip ── */
+        .tip { position: relative; display: inline-flex; }
+        .tip-i {
+            width: 15px; height: 15px;
+            border-radius: 50%;
+            background: rgba(99,102,241,.18);
+            color: var(--accent);
+            font-size: 9px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: help;
+        }
+        .tip-box {
+            position: absolute;
+            left: 22px; top: -6px;
+            background: #1e1e2e;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            width: 230px;
+            font-size: 12px;
+            color: var(--muted);
+            z-index: 300;
+            display: none;
+            line-height: 1.7;
+            box-shadow: 0 10px 40px rgba(0,0,0,.5);
+        }
+        .tip-box a { color: var(--accent); text-decoration: underline; }
+        .tip:hover .tip-box { display: block; }
+
+        /* ── Terms ── */
+        .terms {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            line-height: 1.6;
+        }
+        .terms a { color: var(--accent); text-decoration: none; }
+        .terms a:hover { text-decoration: underline; }
+
+        /* ── 2FA overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.7);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .overlay.open { display: flex; }
+        .overlay-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px;
+            max-width: 320px;
+            width: 100%;
+            text-align: center;
+        }
+        .code-input {
+            font-size: 26px;
+            letter-spacing: 10px;
+            text-align: center;
+            background: var(--input-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            width: 100%;
+            color: var(--text);
+            outline: none;
+            margin: 20px 0;
+        }
+        
+        .code-input:focus { border-color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="card">
+
+    <!-- Logo -->
+    <div class="logo">
+        <img src="/static/img/Game It Logo.svg" alt="Game It"
+             onerror="this.style.display='none'">
+        <p class="logo-name">Game <span>It</span></p>
+        <p class="logo-sub">Your premium gaming social network</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" id="tab-login"    onclick="showTab('login')">Log in</button>
+        <button class="tab"        id="tab-register" onclick="showTab('register')">Sign Up</button>
+    </div>
+
+    <!-- Erro -->
+    <div id="auth-err" class="err-box" style="margin-bottom:16px;"></div>
+
+    <!-- ════════ FORM LOGIN ════════ -->
+    <div id="form-login" class="form">
+
+        <div class="field">
+            <label class="label">Email or Username</label>
+            <input id="l-email" type="text" class="input"
+                   placeholder="Enter your email or username">
+        </div>
+
+        <div class="field">
+            <div class="row-between" style="margin-bottom:6px;">
+                <span class="label" style="margin:0;">Password</span>
+                <a href="/forgot-password" class="link">Forgot password?</a>
+            </div>
+            <div class="input-wrap">
+                <input id="l-pass" type="password" class="input with-icon"
+                       placeholder="Enter your password">
+                <button class="eye-btn" onclick="togglePw('l-pass', 'eye-l')" type="button">
+                    <i class="fa-solid fa-eye" id="eye-l"></i>
+                </button>
+            </div>
+        </div>
+
+        <button class="btn-main" id="btn-login" onclick="fazerLogin()">Log in</button>
+
+        <div class="divider">
+            <div class="div-line"></div>
+            <span class="div-txt">OR</span>
+            <div class="div-line"></div>
+        </div>
+
+        <div class="social-row">
+            <button class="btn-social" onclick="loginGoogle()">
+                <svg width="16" height="16" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Google
+            </button>
+            <button class="btn-social" onclick="alert('Apple em breve!')">
+                <i class="fa-brands fa-apple" style="font-size:16px;"></i>
+                Apple
+            </button>
+            <button class="btn-social" onclick="alert('Facebook em breve!')">
+                <i class="fa-brands fa-facebook" style="font-size:16px;color:#1877F2;"></i>
+                Facebook
+            </button>
+        </div>
+
+        <p class="bottom-txt">
+            Don't have an account?
+            <a href="#" onclick="showTab('register')">Create New Account</a>
+        </p>
+    </div>
+
+    <!-- ════════ FORM REGISTER ════════ -->
+    <div id="form-register" class="form" style="display:none;">
+
+        <div class="field">
+            <label class="label">Full Name</label>
+            <input id="r-name" type="text" class="input" placeholder="John Doe">
+        </div>
+
+        <div class="field">
+            <label class="label">Username</label>
+            <div class="input-wrap">
+                <input id="r-user" type="text" class="input" placeholder="@yourusername"
+                       style="padding-left:30px;">
+                <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);
+                             color:var(--muted);font-size:14px;">@</span>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">Email</label>
+            <input id="r-email" type="email" class="input" placeholder="your@email.com">
+        </div>
+
+        <div class="field">
+            <label class="label">Password</label>
+            <div class="input-wrap">
+                <input id="r-pass" type="password" class="input with-icon"
+                       placeholder="Create a secure password">
+                <button class="eye-btn" onclick="togglePw('r-pass','eye-r')" type="button">
+                    <i class="fa-solid fa-eye" id="eye-r"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">Confirm Password</label>
+            <input id="r-conf" type="password" class="input" placeholder="Repeat your password">
+        </div>
+
+        <!-- Conexões opcionais -->
+        <div class="opt-box">
+            <div class="opt-hdr" onclick="toggleOpt()">
+                <i class="fa-brands fa-steam" style="color:var(--accent);"></i>
+                <span class="opt-title">
+                    Steam &amp; AI Connections
+                    <span class="opt-badge">(optional)</span>
+                </span>
+                <i class="fa-solid fa-chevron-down opt-arrow" id="opt-arrow"></i>
+            </div>
+            <div class="opt-body" id="opt-body">
+                <div class="warn">
+                    <i class="fa-solid fa-triangle-exclamation" style="flex-shrink:0;"></i>
+                    <span>Without these, Steam library and AI features won't work.
+                          You can add them later in Settings.</span>
+                </div>
+
+                <div class="field">
+                    <label class="label">
+                        Steam ID
+                        <div class="tip">
+                            <span class="tip-i">i</span>
+                            <div class="tip-box">
+                                <strong style="color:var(--text);">What is Steam ID?</strong><br><br>
+                                Your unique Steam account number.<br><br>
+                                🔗 <a href="https://www.steamidfinder.com/" target="_blank">steamidfinder.com</a><br><br>
+                                Or find it at:<br>
+                                steamcommunity.com/profiles/<strong>[YOUR_ID]</strong>
+                            </div>
+                        </div>
+                    </label>
+                    <input id="r-sid" type="text" class="input"
+                           placeholder="e.g. 76561198000000000">
+                </div>
+
+                <div class="field">
+                    <label class="label">
+                        Steam API Key
+                        <div class="tip">
+                            <span class="tip-i">i</span>
+                            <div class="tip-box">
+                                <strong style="color:var(--text);">What is Steam API Key?</strong><br><br>
+                                Required to access your games and achievements.<br><br>
+                                🔗 <a href="https://steamcommunity.com/dev/apikey" target="_blank">steamcommunity.com/dev/apikey</a><br><br>
+                                It's free — you just need to be logged in.
+                            </div>
+                        </div>
+                    </label>
+                    <input id="r-skey" type="text" class="input" placeholder="e.g. A1B2C3D4...">
+                </div>
+
+                <div class="field">
+                    <label class="label">
+                        Gemini API Key
+                        <div class="tip">
+                            <span class="tip-i">i</span>
+                            <div class="tip-box">
+                                <strong style="color:var(--text);">What is Gemini API Key?</strong><br><br>
+                                Google's AI key for generating achievement guides.<br><br>
+                                🔗 <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a><br><br>
+                                It's <strong style="color:var(--accent);">free</strong> on the standard plan.
+                            </div>
+                        </div>
+                    </label>
+                    <input id="r-gkey" type="text" class="input" placeholder="e.g. AIzaSy...">
+                </div>
+            </div>
+        </div>
+
+        <p class="terms">
+            By signing up, you agree to our
+            <a href="#">Terms</a>,
+            <a href="#">Privacy Policy</a> and
+            <a href="#">Cookie Policy</a>.
+        </p>
+
+        <button class="btn-main" id="btn-reg" onclick="fazerCadastro()">Sign up</button>
+
+        <div class="divider">
+            <div class="div-line"></div>
+            <span class="div-txt">OR</span>
+            <div class="div-line"></div>
+        </div>
+
+        <div class="social-row">
+            <button class="btn-social" onclick="loginGoogle()">
+                <svg width="16" height="16" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Google
+            </button>
+            <button class="btn-social" onclick="alert('Apple em breve!')">
+                <i class="fa-brands fa-apple" style="font-size:16px;"></i>
+                Apple
+            </button>
+            <button class="btn-social" onclick="alert('Facebook em breve!')">
+                <i class="fa-brands fa-facebook" style="font-size:16px;color:#1877F2;"></i>
+                Facebook
+            </button>
+        </div>
+
+        <p class="bottom-txt">
+            Already have an account?
+            <a href="#" onclick="showTab('login')">Log in</a>
+        </p>
+    </div>
+
+</div>
+
+<!-- 2FA Modal -->
+<div class="overlay" id="twofa-ov">
+    <div class="overlay-card">
+        <i class="fa-solid fa-shield-halved" style="font-size:40px;color:var(--accent);"></i>
+        <h3 style="font-size:18px;font-weight:800;margin:14px 0 6px;">Two-Step Verification</h3>
+        <p style="font-size:13px;color:var(--muted);">
+            Enter the code from your authenticator app
+        </p>
+        <input id="twofa-code" type="text" class="code-input"
+               placeholder="000000" maxlength="6" inputmode="numeric">
+        <div id="twofa-err" class="err-box" style="margin-bottom:12px;"></div>
+        <button class="btn-main" onclick="confirmar2FA()">Confirm</button>
+        <button onclick="document.getElementById('twofa-ov').classList.remove('open')"
+                style="margin-top:10px;width:100%;padding:10px;background:none;border:none;
+                       color:var(--muted);cursor:pointer;font-size:13px;">
+            Cancel
+        </button>
+    </div>
+</div>
+
+<script>
+function showTab(t) {
+    ['login','register'].forEach(function(x) {
+        document.getElementById('tab-'  + x).classList.toggle('active', x === t);
+        document.getElementById('form-' + x).style.display = x === t ? 'flex' : 'none';
+    });
+    document.getElementById('auth-err').style.display = 'none';
+}
+
+function togglePw(inputId, iconId) {
+    var inp  = document.getElementById(inputId);
+    var icon = document.getElementById(iconId);
+    if (inp.type === 'password') {
+        inp.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash';
+    } else {
+        inp.type = 'password';
+        icon.className = 'fa-solid fa-eye';
+    }
+}
+
+function toggleOpt() {
+    document.getElementById('opt-body').classList.toggle('open');
+    document.getElementById('opt-arrow').classList.toggle('open');
+}
+
+function showErr(msg, elId) {
+    var el = document.getElementById(elId || 'auth-err');
+    el.textContent = msg;
+    el.style.display = 'block';
+}
+
+function hideErr() {
+    document.getElementById('auth-err').style.display = 'none';
+}
+
+async function fazerLogin() {
+    hideErr();
+    var email = document.getElementById('l-email').value.trim();
+    var pass  = document.getElementById('l-pass').value;
+    if (!email || !pass) { showErr('Please fill in email and password.'); return; }
+
+    var btn = document.getElementById('btn-login');
+    btn.disabled = true; btn.textContent = 'Logging in...';
+
+    try {
+        var res  = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password: pass })
+        });
+        var data = await res.json();
+
+        if (data.status === 'success') {
+            window.location.href = '/';
+        } else if (data.status === '2fa_required') {
+            window._lEmail = email;
+            window._lPass  = pass;
+            document.getElementById('twofa-ov').classList.add('open');
+        } else {
+            showErr(data.message);
+        }
+    } catch(e) {
+        showErr('Connection error. Please try again.');
+    }
+
+    btn.disabled = false; btn.textContent = 'Log in';
+}
+
+async function confirmar2FA() {
+    var code  = document.getElementById('twofa-code').value;
+    var errEl = document.getElementById('twofa-err');
+    errEl.style.display = 'none';
+
+    var res  = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: window._lEmail, password: window._lPass, totp_code: code })
+    });
+    var data = await res.json();
+
+    if (data.status === 'success') {
+        window.location.href = '/';
+    } else {
+        showErr(data.message, 'twofa-err');
+    }
+}
+
+async function fazerCadastro() {
+    hideErr();
+    var name  = document.getElementById('r-name').value.trim();
+    var email = document.getElementById('r-email').value.trim();
+    var pass  = document.getElementById('r-pass').value;
+    var conf  = document.getElementById('r-conf').value;
+
+    if (!email || !pass)  { showErr('Please fill in email and password.'); return; }
+    if (pass !== conf)    { showErr('Passwords do not match.'); return; }
+    if (pass.length < 6)  { showErr('Password must be at least 6 characters.'); return; }
+
+    var btn = document.getElementById('btn-reg');
+    btn.disabled = true; btn.textContent = 'Creating account...';
+
+    try {
+        var res  = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name,
+                email,
+                password:       pass,
+                steam_id:       document.getElementById('r-sid').value.trim(),
+                steam_api_key:  document.getElementById('r-skey').value.trim(),
+                gemini_api_key: document.getElementById('r-gkey').value.trim()
+            })
+        });
+        var data = await res.json();
+
+        if (data.status === 'success') {
+            window.location.href = '/';
+        } else {
+            showErr(data.message);
+        }
+    } catch(e) {
+        showErr('Connection error. Please try again.');
+    }
+
+    btn.disabled = false; btn.innerHTML = 'Sign up';
+}
+
+function loginGoogle() {
+    window.location.href = '/api/auth/google';
+}
+
+// Enter key
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    var active = document.querySelector('.tab.active').id;
+    if (active === 'tab-login') fazerLogin();
+    else fazerCadastro();
+});
+</script>
+</body>
+</html>

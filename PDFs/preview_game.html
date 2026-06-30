@@ -1,0 +1,229 @@
+
+https://cdn.cloudflare.steamstatic.com/steam/apps/3405690/header.jpg
+Request Method
+GET
+Status Code
+404 Not Found
+Referrer Policy
+strict-origin-when-cross-origin
+akamai-grn<!DOCTYPE html>
+<html lang="pt-BR" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game It | Jogo (preview)</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="file:///c:/Users/Dsanti24/Game-it/Frontend/static/css/style.css">
+    <script>
+        // ─── PREVIEW: simula o backend ────────────────────────
+        // (Este arquivo é só para visualização. No app real os dados vêm do Flask.)
+        window.APPID = "1245620";
+
+        const MOCK_GAME = {
+            status: 'success',
+            game: {
+                appid: '1245620',
+                name: 'ELDEN RING',
+                description: 'Levante-se, Maculado, e seja guiado pela graça para brandir o poder do Anel Pristino e tornar-se um Lorde Prístino nas Terras Intermédias.',
+                header: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/header.jpg',
+                cover: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg',
+                genres: ['RPG de Ação', 'Mundo Aberto', 'Souls-like'],
+                release: '24 fev, 2022',
+                developers: ['FromSoftware Inc.'],
+                steam_score_desc: 'Muito positivas',
+                steam_positive_pct: 92,
+                steam_total_reviews: 720000
+            },
+            community_avg: 4.6,
+            community_count: 3,
+            user_status: {
+                status: 'jogado', started_at: '2024-03-12',
+                replay_count: 1, platinum: true,
+                played: true, played_minutes: 5400
+            },
+            status_counts: { jogando: 2, jogado: 14, backlog: 7, wishlist: 5, platinado: 3 },
+            reviews: [
+                {
+                    id: 1, rating: 5, content: 'Obra-prima absoluta. O level design é incomparável e a sensação de exploração é única.',
+                    platform: 'steam', spoilers: false, status: 'Completed',
+                    started_at: '2024-03-12', replay: true, platinum: true,
+                    likes: 12, liked: true, time: '2d',
+                    author: 'Você', avatar: '', is_mine: true
+                },
+                {
+                    id: 2, rating: 4, content: 'Muito difícil no começo, mas extremamente recompensador. Recomendo demais.',
+                    platform: 'steam', spoilers: false, status: 'Playing',
+                    started_at: '2024-05-01', replay: false, platinum: false,
+                    likes: 5, liked: false, time: '5d',
+                    author: 'rpg_lover', avatar: '', is_mine: false
+                },
+                {
+                    id: 3, rating: 5, content: 'Spoiler sobre o final do jogo aqui...',
+                    platform: 'playstation', spoilers: true, status: 'Completed',
+                    started_at: null, replay: false, platinum: false,
+                    likes: 2, liked: false, time: '1sem',
+                    author: 'darksoul99', avatar: '', is_mine: false
+                }
+            ]
+        };
+
+        window.fetch = function (url, opts) {
+            // GET /api/game/<appid>
+            if (/\/api\/game\/[^/]+$/.test(url)) {
+                return Promise.resolve({ status: 200, json: () => Promise.resolve(MOCK_GAME) });
+            }
+            // POST status / like / delete — apenas responde sucesso
+            return Promise.resolve({ status: 200, json: () => Promise.resolve({ status: 'success', platinum: true, liked: true, likes: 13 }) });
+        };
+    </script>
+</head>
+<body class="profile-body">
+
+<!-- NAVBAR -->
+<nav class="g-nav" id="top-nav">
+    <div class="nav-logo">
+        <img src="file:///c:/Users/Dsanti24/Game-it/Frontend/static/img/Game It Logo.svg" width="32" height="32" alt="Game It Logo">
+        <span class="nav-title">Game <span style="color:#6366F1">It</span></span>
+    </div>
+    <div class="nav-pills">
+        <span class="nav-pill">Home</span>
+        <span class="nav-pill">Perfil</span>
+        <span class="nav-pill">Biblioteca</span>
+    </div>
+    <div class="nav-actions">
+        <span class="theme-btn" title="Voltar ao perfil"><i class="fa-solid fa-arrow-left"></i></span>
+        <span class="theme-btn" title="Configurações"><i class="fa-solid fa-gear"></i></span>
+    </div>
+</nav>
+
+<!-- CONTEÚDO -->
+<div class="game-page cscroll">
+    <section class="game-hero panel">
+        <div class="game-hero-bg" id="game-hero-bg"></div>
+        <div class="game-hero-content">
+            <img id="game-cover" class="game-cover" src="" alt="">
+            <div class="game-head">
+                <h1 id="game-name" class="game-name">Carregando...</h1>
+                <div id="game-genres" class="game-genres"></div>
+                <p id="game-meta" class="game-meta"></p>
+                <p id="game-desc" class="game-desc"></p>
+                <div class="game-scores">
+                    <div class="score-card">
+                        <span class="score-label">Média Game It</span>
+                        <span class="score-value" id="score-community">—</span>
+                        <span class="score-sub" id="score-community-sub"></span>
+                    </div>
+                    <div class="score-card">
+                        <span class="score-label"><i class="fa-brands fa-steam"></i> Steam</span>
+                        <span class="score-value" id="score-steam">—</span>
+                        <span class="score-sub" id="score-steam-sub"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="game-grid">
+        <main class="game-main">
+            <section class="panel pcard">
+                <h3 class="pcard-title">Seu status</h3>
+                <div id="status-buttons" class="status-buttons">
+                    <button class="status-btn" data-st="jogando"  onclick="definirStatus('jogando')"><i class="fa-solid fa-play"></i> Jogando</button>
+                    <button class="status-btn" data-st="jogado"   onclick="definirStatus('jogado')"><i class="fa-solid fa-check"></i> Jogado</button>
+                    <button class="status-btn" data-st="backlog"  onclick="definirStatus('backlog')"><i class="fa-solid fa-box-archive"></i> Backlog</button>
+                    <button class="status-btn" data-st="wishlist" onclick="definirStatus('wishlist')"><i class="fa-solid fa-gift"></i> Wishlist</button>
+                    <button class="status-btn platinum" data-st="platinado" onclick="definirStatus('platinado')"><i class="fa-solid fa-gamepad"></i> Platinado</button>
+                </div>
+                <div class="status-extra">
+                    <label class="status-field">
+                        <span class="pfield-label">Comecei a jogar em</span>
+                        <input id="status-date" type="date" class="pfield" onchange="salvarExtra()">
+                    </label>
+                    <label class="status-field">
+                        <span class="pfield-label">Jogadas (replays)</span>
+                        <div class="replay-control">
+                            <button type="button" onclick="ajustarReplay(-1)"><i class="fa-solid fa-minus"></i></button>
+                            <span id="replay-count">0</span>
+                            <button type="button" onclick="ajustarReplay(1)"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </label>
+                </div>
+                <p id="played-info" class="played-info"></p>
+            </section>
+
+            <section class="panel pcard">
+                <div class="pcard-title-row">
+                    <h3 class="pcard-title">Avaliações da comunidade</h3>
+                    <button class="btn-primary btn-sm"><i class="fa-solid fa-star"></i> Avaliar</button>
+                </div>
+                <div id="game-reviews" class="game-reviews">
+                    <div class="recent-loading"><div class="spinner-sm"></div></div>
+                </div>
+            </section>
+        </main>
+
+        <aside class="game-side">
+            <section class="panel pcard">
+                <h3 class="pcard-title">Sua coleção</h3>
+                <div class="count-box">
+                    <div class="count-row"><span><i class="fa-solid fa-play"></i> Jogando</span><b id="cnt-jogando">0</b></div>
+                    <div class="count-row"><span><i class="fa-solid fa-check"></i> Jogados</span><b id="cnt-jogado">0</b></div>
+                    <div class="count-row"><span><i class="fa-solid fa-box-archive"></i> Backlog</span><b id="cnt-backlog">0</b></div>
+                    <div class="count-row"><span><i class="fa-solid fa-gift"></i> Wishlist</span><b id="cnt-wishlist">0</b></div>
+                    <div class="count-row platinum"><span><i class="fa-solid fa-gamepad"></i> Platinados</span><b id="cnt-platinado">0</b></div>
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="file:///c:/Users/Dsanti24/Game-it/Frontend/static/js/game.js"></script>
+</body>
+</html>
+
+0.55de00c9.1782421895.faffb12
+content-length
+548
+content-type
+text/html
+date
+Thu, 25 Jun 2026 21:11:35 GMT
+server
+nginx
+:authority
+cdn.cloudflare.steamstatic.com
+:method
+GET
+:path
+/steam/apps/3405690/header.jpg
+:scheme
+https
+accept
+image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
+accept-encoding
+gzip, deflate, br, zstd
+accept-language
+pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7,es;q=0.6
+priority
+i
+referer
+http://127.0.0.1:5000/
+sec-ch-ua
+"Chromium";v="148", "Opera GX";v="132", "Not/A)Brand";v="99"
+sec-ch-ua-mobile
+?0
+sec-ch-ua-platform
+"Windows"
+sec-fetch-dest
+image
+sec-fetch-mode
+no-cors
+sec-fetch-site
+cross-site
+sec-fetch-storage-access
+active
+user-agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0

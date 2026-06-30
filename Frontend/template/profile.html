@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game It | Perfil</title>
+    <link rel="icon" type="image/svg+xml" href="/static/img/Game It Logo.svg">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="profile-body">
+
+<!-- ══════════════════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════════════════ -->
+<nav class="g-nav" id="top-nav">
+    <div class="nav-logo">
+        <img src="/static/img/Game It Logo.svg" width="32" height="32" alt="Game It Logo">
+        <span class="nav-title">Game <span style="color:#6366F1">It</span></span>
+    </div>
+
+    <div class="nav-pills">
+        <a href="/perfil" class="nav-pill" style="text-decoration:none;">Home</a>
+        <span class="nav-pill">Review</span>
+        <a href="/perfil" class="nav-pill active" style="text-decoration:none;">Perfil</a>
+        <a href="/progresso" class="nav-pill" style="text-decoration:none;">Progresso</a>
+    </div>
+
+    <div class="nav-actions">
+        <button class="btn-search" onclick="document.getElementById('feed-search').focus()">
+            <i class="fa-solid fa-magnifying-glass"></i> Pesquisar
+        </button>
+        <a href="/configuracoes" id="nav-settings" class="theme-btn" title="Configurações"
+           style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-gear"></i>
+        </a>
+        <button onclick="fazerLogout()" title="Sair"
+                style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);
+                       border-radius:10px;padding:7px 13px;color:#f87171;font-size:13px;
+                       font-weight:700;cursor:pointer;transition:all .2s;">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </button>
+    </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════
+     LAYOUT
+══════════════════════════════════════════════════ -->
+<div class="profile-layout cscroll">
+
+    <!-- ░░░░░ LEFT COLUMN ░░░░░ -->
+    <aside class="pcol-left">
+
+        <!-- Jogado Recentemente -->
+        <section class="panel pcard">
+            <h3 class="pcard-title">Jogado Recentemente</h3>
+            <div id="recent-played" class="recent-list">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
+            </div>
+        </section>
+
+        <!-- Avaliações -->
+        <section class="panel pcard">
+            <h3 class="pcard-title">Avaliações</h3>
+            <div id="ratings-box" class="rating-bars">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
+            </div>
+        </section>
+
+        <!-- Plataformas mais usadas -->
+        <section class="panel pcard">
+            <h3 class="pcard-title">Plataformas mais usadas</h3>
+            <div id="platforms-box" class="platform-bars">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
+            </div>
+        </section>
+    </aside>
+
+    <!-- ░░░░░ CENTER COLUMN ░░░░░ -->
+    <main class="pcol-center">
+
+        <!-- Profile Header -->
+        <section class="panel profile-header">
+            <div class="profile-banner" id="profile-banner">
+                <button class="btn-change-cover" onclick="document.getElementById('cover-input').click()" title="Trocar capa">
+                    <i class="fa-solid fa-camera"></i>
+                </button>
+            </div>
+
+            <button class="btn-edit-profile" onclick="abrirEditarPerfil()">Editar Perfil</button>
+
+            <div class="profile-avatar" id="profile-avatar">
+                <img id="profile-avatar-img" src="/static/img/Game It Logo.svg" alt="Avatar">
+                <button class="btn-change-avatar" onclick="document.getElementById('avatar-input').click()" title="Trocar foto">
+                    <i class="fa-solid fa-camera"></i>
+                </button>
+            </div>
+
+            <hr class="profile-divider">
+
+            <div class="profile-info">
+                <h2 class="profile-name">
+                    <span id="profile-nickname">@Jogador</span>
+                    <i class="fa-solid fa-circle-check verified"></i>
+                </h2>
+                <p class="profile-bio" id="profile-bio">Eu sou uma bio!</p>
+                <p class="profile-meta">
+                    <i class="fa-regular fa-calendar"></i> <span id="profile-joined">Recentemente</span>
+                </p>
+                <p class="profile-follow">
+                    <span class="follow-num" id="follow-following">0</span> <span class="follow-lbl">Seguindo</span>
+                    <span class="follow-num" id="follow-followers">0</span> <span class="follow-lbl">Seguidores</span>
+                </p>
+            </div>
+
+            <!-- Jogos Favoritos (abaixo da capa) -->
+            <div class="fav-games">
+                <p class="fav-title">
+                    Jogos Favoritos
+                    <button class="btn-edit-fav" onclick="abrirSeletorFavoritos()" title="Editar favoritos">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                </p>
+                <div class="fav-covers" id="fav-covers">
+                    <div class="fav-cover empty"></div>
+                    <div class="fav-cover empty"></div>
+                    <div class="fav-cover empty"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabs -->
+        <div class="profile-tabs">
+            <button class="ptab active" data-tab="posts" onclick="switchProfileTab('posts')">Posts</button>
+            <button class="ptab" data-tab="reviews" onclick="switchProfileTab('reviews')">Reviews</button>
+            <button class="ptab" data-tab="listas" onclick="switchProfileTab('listas')">Listas</button>
+            <button class="ptab" data-tab="jogos" onclick="switchProfileTab('jogos')">Jogos</button>
+            <button class="ptab" data-tab="curtidas" onclick="switchProfileTab('curtidas')">Curtidas</button>
+        </div>
+
+        <!-- Hidden search input target -->
+        <input id="feed-search" type="text" style="position:absolute;opacity:0;pointer-events:none;height:0;width:0;">
+
+        <!-- Posts panel -->
+        <div id="ppanel-posts" class="ppanel">
+            <!-- Composer -->
+            <div class="composer panel">
+                <div class="composer-avatar"><img id="composer-avatar" src="/static/img/Game It Logo.svg" alt=""></div>
+                <div class="composer-body">
+                    <textarea id="composer-text" class="composer-input" rows="2"
+                              placeholder="No que você está jogando?" maxlength="1000"
+                              oninput="autoGrow(this)"></textarea>
+                    <div class="composer-actions">
+                        <span class="composer-hint">Use #hashtags para entrar no Trending</span>
+                        <button class="btn-post" onclick="publicarPost()">
+                            <i class="fa-solid fa-paper-plane"></i> Postar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="posts-list" class="posts-list">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
+            </div>
+        </div>
+
+        <!-- Reviews -->
+        <div id="ppanel-reviews" class="ppanel" style="display:none;">
+            <div class="reviews-toolbar">
+                <button class="btn-new-review" onclick="abrirNovaReview()">
+                    <i class="fa-solid fa-star"></i> Nova Avaliação
+                </button>
+            </div>
+            <div id="reviews-list">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
+            </div>
+        </div>
+
+        <!-- Listas -->
+        <div id="ppanel-listas" class="ppanel" style="display:none;">
+            <div class="reviews-toolbar">
+                <button class="btn-new-review" onclick="abrirNovaLista()">
+                    <i class="fa-solid fa-plus"></i> Nova Lista
+                </button>
+            </div>
+            <div id="listas-grid" class="listas-grid">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
+            </div>
+        </div>
+
+        <!-- Jogos -->
+        <div id="ppanel-jogos" class="ppanel" style="display:none;">
+            <div class="jogos-toolbar">
+                <label class="jogos-filtro-label"><i class="fa-solid fa-filter"></i> Filtrar</label>
+                <select id="jogos-filtro" class="jogos-filtro" onchange="filtrarJogos()">
+                    <option value="all">Todos os jogos</option>
+                    <option value="az">Ordem A-Z</option>
+                    <option value="backlog">Backlog (não jogados)</option>
+                    <option value="plat:steam">Steam</option>
+                </select>
+                <div class="view-toggle">
+                    <button id="view-grid" class="view-btn active" onclick="setJogosView('grid')" title="Grade">
+                        <i class="fa-solid fa-table-cells"></i>
+                    </button>
+                    <button id="view-list" class="view-btn" onclick="setJogosView('list')" title="Lista">
+                        <i class="fa-solid fa-list"></i>
+                    </button>
+                </div>
+                <button id="btn-criar-lista" class="btn-criar-lista" onclick="toggleSelecaoJogos()">
+                    <i class="fa-solid fa-plus"></i> Criar lista
+                </button>
+                <span id="jogos-contador" class="jogos-contador"></span>
+            </div>
+
+            <!-- Barra de seleção (modo de criar lista personalizada) -->
+            <div id="jogos-selecao-bar" class="jogos-selecao-bar" style="display:none;">
+                <input id="jogos-lista-titulo" class="pfield" type="text"
+                       placeholder="Nome da lista personalizada..." maxlength="120">
+                <span id="jogos-sel-count" class="jogos-sel-count">0 selecionados</span>
+                <button class="btn-primary btn-sm" onclick="salvarListaSelecao()">
+                    <i class="fa-solid fa-floppy-disk"></i> Salvar lista
+                </button>
+                <button class="btn-secondary btn-sm" onclick="cancelarSelecaoJogos()">Cancelar</button>
+            </div>
+
+            <div id="jogos-grid" class="jogos-mini-grid">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
+            </div>
+        </div>
+
+        <!-- Curtidas -->
+        <div id="ppanel-curtidas" class="ppanel" style="display:none;">
+            <div id="curtidas-list">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ░░░░░ RIGHT COLUMN ░░░░░ -->
+    <aside class="pcol-right">
+
+        <!-- Amigos -->
+        <section class="panel pcard">
+            <h3 class="pcard-title">Amigos</h3>
+            <div id="friends-list" class="friend-list">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
+            </div>
+            <a href="#" class="show-more" id="friends-more" style="display:none;">Mostrar mais</a>
+        </section>
+
+        <!-- Trending Topics -->
+        <section class="panel pcard">
+            <h3 class="pcard-title">Trending Topics</h3>
+            <div id="trending-list" class="trend-list">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
+            </div>
+        </section>
+    </aside>
+</div>
+
+<!-- Hidden file inputs -->
+<input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="enviarImagem('avatar', this)">
+<input type="file" id="cover-input"  accept="image/*" style="display:none" onchange="enviarImagem('cover', this)">
+
+<!-- ══════════════════════════════════════════════════
+     MODAL: Editar Perfil
+══════════════════════════════════════════════════ -->
+<div id="modal-edit" class="pmodal-overlay">
+    <div class="pmodal">
+        <div class="pmodal-head">
+            <h2>Editar Perfil</h2>
+            <button class="pmodal-close" onclick="fecharModal('modal-edit')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="pmodal-body">
+            <label class="pfield-label">Nome de exibição</label>
+            <input id="edit-nickname" class="pfield" type="text" placeholder="Seu nome" maxlength="40">
+
+            <label class="pfield-label">Bio</label>
+            <textarea id="edit-bio" class="pfield" rows="3" placeholder="Fale sobre você..." maxlength="200"></textarea>
+
+            <div class="pmodal-imgrow">
+                <button class="btn-secondary" onclick="document.getElementById('avatar-input').click()">
+                    <i class="fa-solid fa-camera"></i> Trocar foto
+                </button>
+                <button class="btn-secondary" onclick="document.getElementById('cover-input').click()">
+                    <i class="fa-solid fa-image"></i> Trocar capa
+                </button>
+            </div>
+        </div>
+        <div class="pmodal-foot">
+            <button class="btn-secondary" onclick="fecharModal('modal-edit')">Cancelar</button>
+            <button class="btn-primary" onclick="salvarPerfil()">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODAL: Seletor de Jogos Favoritos
+══════════════════════════════════════════════════ -->
+<div id="modal-fav" class="pmodal-overlay">
+    <div class="pmodal large">
+        <div class="pmodal-head">
+            <h2>Escolha 3 jogos favoritos</h2>
+            <button class="pmodal-close" onclick="fecharModal('modal-fav')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="pmodal-subbar">
+            <input id="fav-search" class="pfield" type="text" placeholder="Buscar na biblioteca..."
+                   oninput="filtrarBibliotecaFav(this.value)">
+            <span id="fav-counter" class="fav-counter">0/3 selecionados</span>
+        </div>
+        <div class="pmodal-body">
+            <div id="fav-grid" class="fav-picker-grid">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
+            </div>
+        </div>
+        <div class="pmodal-foot">
+            <button class="btn-secondary" onclick="fecharModal('modal-fav')">Cancelar</button>
+            <button class="btn-primary" onclick="salvarFavoritos()">Salvar favoritos</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODAL: Nova Avaliação (2 passos)
+══════════════════════════════════════════════════ -->
+<div id="modal-review" class="pmodal-overlay">
+    <div class="pmodal large">
+        <div class="pmodal-head">
+            <h2 id="review-modal-title">Escolha um jogo para avaliar</h2>
+            <button class="pmodal-close" onclick="fecharModal('modal-review')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Passo 1: seletor de jogo (igual favoritos) -->
+        <div id="review-step-pick">
+            <div class="pmodal-subbar">
+                <input id="review-search" class="pfield" type="text" placeholder="Buscar jogo na biblioteca..."
+                       oninput="filtrarBibliotecaReview(this.value)">
+            </div>
+            <div class="pmodal-body">
+                <div id="review-grid" class="fav-picker-grid">
+                    <div class="recent-loading"><div class="spinner-sm"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Passo 2: formulário de avaliação (estilo log) -->
+        <div id="review-step-form" style="display:none;">
+            <div class="pmodal-body">
+                <div class="rlog">
+                    <div class="rlog-cover">
+                        <img id="review-cover-img" src="" alt="">
+                        <div class="rlog-status">
+                            <button type="button" class="rstatus active" data-st="Completed"><i class="fa-solid fa-gamepad"></i> Completo</button>
+                            <button type="button" class="rstatus" data-st="Playing"><i class="fa-solid fa-play"></i> Jogando</button>
+                            <button type="button" class="rstatus" data-st="Backlog"><i class="fa-solid fa-box-archive"></i> Backlog</button>
+                            <button type="button" class="rstatus" data-st="Wishlist"><i class="fa-solid fa-gift"></i> Wishlist</button>
+                        </div>
+                    </div>
+                    <div class="rlog-main">
+                        <div class="rlog-row">
+                            <div class="rlog-field">
+                                <label class="pfield-label">Nota</label>
+                                <div id="review-stars" class="star-picker">
+                                    <i class="fa-regular fa-star" data-v="1"></i>
+                                    <i class="fa-regular fa-star" data-v="2"></i>
+                                    <i class="fa-regular fa-star" data-v="3"></i>
+                                    <i class="fa-regular fa-star" data-v="4"></i>
+                                    <i class="fa-regular fa-star" data-v="5"></i>
+                                </div>
+                            </div>
+                            <div class="rlog-field">
+                                <label class="pfield-label">Plataforma</label>
+                                <select id="review-platform" class="pfield">
+                                    <option value="steam">Steam</option>
+                                    <option value="epic">Epic Games</option>
+                                    <option value="xbox">Xbox</option>
+                                    <option value="playstation">PlayStation</option>
+                                    <option value="nintendo">Nintendo</option>
+                                    <option value="other">Outra</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <label class="pfield-label">Review</label>
+                        <textarea id="review-text" class="pfield" rows="5"
+                                  placeholder="O que você achou?" maxlength="1000"></textarea>
+
+                        <div class="rlog-row">
+                            <div class="rlog-field">
+                                <label class="pfield-label">Comecei a jogar em</label>
+                                <input id="review-date" type="date" class="pfield">
+                            </div>
+                            <div class="rlog-field rlog-field-checks">
+                                <label class="rcheck">
+                                    <input type="checkbox" id="review-replay"> Jogando novamente (rejogada)
+                                </label>
+                                <label class="rcheck">
+                                    <input type="checkbox" id="review-spoilers"> Contém spoilers
+                                </label>
+                            </div>
+                        </div>
+                        <p id="review-platinum-note" class="review-platinum-note" style="display:none;">
+                            <i class="fa-solid fa-gamepad"></i> Platinado detectado (100% das conquistas) — será marcado automaticamente.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="pmodal-foot">
+                <button class="btn-secondary" onclick="voltarSelecaoReview()"><i class="fa-solid fa-arrow-left"></i> Trocar jogo</button>
+                <button class="btn-primary" onclick="salvarReview()">Publicar avaliação</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODAL: Nova Lista
+══════════════════════════════════════════════════ -->
+<div id="modal-lista" class="pmodal-overlay">
+    <div class="pmodal">
+        <div class="pmodal-head">
+            <h2>Nova Lista</h2>
+            <button class="pmodal-close" onclick="fecharModal('modal-lista')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="pmodal-body">
+            <label class="pfield-label">Título</label>
+            <input id="lista-title" class="pfield" type="text" placeholder="Ex: Meus favoritos de 2024" maxlength="120">
+            <p class="pfield-hint">Crie a lista e depois adicione os jogos que quiser nela.</p>
+        </div>
+        <div class="pmodal-foot">
+            <button class="btn-secondary" onclick="fecharModal('modal-lista')">Cancelar</button>
+            <button class="btn-primary" onclick="salvarLista()">Criar lista</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODAL: Detalhe da Lista
+══════════════════════════════════════════════════ -->
+<div id="modal-lista-detalhe" class="pmodal-overlay">
+    <div class="pmodal large">
+        <div class="pmodal-head">
+            <h2><span id="ld-title">Lista</span> <span id="ld-count" class="ld-count">0 jogos</span></h2>
+            <button class="pmodal-close" onclick="fecharModal('modal-lista-detalhe')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="pmodal-subbar">
+            <button class="btn-new-review" onclick="abrirAddJogosLista()"><i class="fa-solid fa-plus"></i> Adicionar jogos</button>
+            <button class="btn-secondary" onclick="excluirListaAtual()" style="margin-left:auto;color:#f87171;border-color:rgba(239,68,68,.3);">
+                <i class="fa-solid fa-trash"></i> Excluir lista
+            </button>
+        </div>
+        <div class="pmodal-body">
+            <div id="ld-grid" class="listas-detalhe-grid">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODAL: Adicionar jogos à lista
+══════════════════════════════════════════════════ -->
+<div id="modal-add-jogos" class="pmodal-overlay">
+    <div class="pmodal large">
+        <div class="pmodal-head">
+            <h2>Adicionar jogos</h2>
+            <button class="pmodal-close" onclick="fecharModal('modal-add-jogos')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="pmodal-subbar">
+            <input id="addjogos-search" class="pfield" type="text" placeholder="Buscar na biblioteca..."
+                   oninput="filtrarAddJogos(this.value)">
+            <span id="addjogos-counter" class="fav-counter">0 selecionados</span>
+        </div>
+        <div class="pmodal-body">
+            <div id="addjogos-grid" class="fav-picker-grid">
+                <div class="recent-loading"><div class="spinner-sm"></div></div>
+            </div>
+        </div>
+        <div class="pmodal-foot">
+            <button class="btn-secondary" onclick="fecharModal('modal-add-jogos')">Cancelar</button>
+            <button class="btn-primary" onclick="salvarAddJogos()">Adicionar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast">
+    <i class="fa-solid fa-check-circle"></i>
+    <span id="toast-msg">Ação realizada!</span>
+</div>
+
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+</body>
+</html>
