@@ -5,6 +5,13 @@
 const APPID = window.APPID;
 const DEFAULT_COVER = '/static/img/Game It Logo.svg';
 
+// ── TEMA (aplica o mesmo light/dark salvo nas outras páginas) ──
+(function initTheme() {
+    const saved = localStorage.getItem('gameit-theme') || 'dark';
+    const root  = document.getElementById('html-root');
+    if (root && saved === 'light') root.classList.add('light');
+})();
+
 let GAME = null;
 let USER_STATUS = { status: null, started_at: null, replay_count: 0, platinum: false };
 
